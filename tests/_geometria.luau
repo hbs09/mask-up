@@ -10,7 +10,8 @@
 	Vale sobretudo depois de mexer nas medidas da LOJA ou nas posicoes.
 ]]
 
-local LOJA = { largura = 60, profundidade = 40, altura = 14, espessuraParede = 2, larguraEntrada = 10 }
+local LOJA =
+	{ largura = 60, profundidade = 40, altura = 14, espessuraParede = 2, larguraEntrada = 10 }
 local LOBBY_Z = 90
 local ESCAPE_Z = -(LOJA.profundidade / 2 + 18)
 
@@ -32,7 +33,14 @@ end
 
 local function contido(dentro, fora, nome)
 	return dentro.min >= fora.min and dentro.max <= fora.max,
-		string.format("%s [%g..%g] fora de [%g..%g]", nome, dentro.min, dentro.max, fora.min, fora.max)
+		string.format(
+			"%s [%g..%g] fora de [%g..%g]",
+			nome,
+			dentro.min,
+			dentro.max,
+			fora.min,
+			fora.max
+		)
 end
 
 local function sobrepoem(a, b)
@@ -47,7 +55,8 @@ local terrenoX = faixa(0, 160)
 local lojaZ = faixa(0, LOJA.profundidade)
 local lojaX = faixa(0, LOJA.largura)
 local lobbyZ = faixa(LOBBY_Z, 40)
-local caminhoEntradaZ = faixa((LOBBY_Z - 20 + LOJA.profundidade / 2) / 2, LOBBY_Z - 20 - LOJA.profundidade / 2)
+local caminhoEntradaZ =
+	faixa((LOBBY_Z - 20 + LOJA.profundidade / 2) / 2, LOBBY_Z - 20 - LOJA.profundidade / 2)
 local caminhoFugaZ = faixa(-(LOJA.profundidade / 2) - 8, 16)
 local zonaZ = faixa(ESCAPE_Z + 7, 12)
 local carrinhaZ = faixa(ESCAPE_Z - 4, 18)
@@ -63,7 +72,8 @@ print("")
 print("=== o percurso nao tem buracos ===")
 verificar(
 	"caminho liga a frente da loja ao lobby",
-	math.abs(caminhoEntradaZ.min - lojaZ.max) < 0.01 and math.abs(caminhoEntradaZ.max - lobbyZ.min) < 0.01,
+	math.abs(caminhoEntradaZ.min - lojaZ.max) < 0.01
+		and math.abs(caminhoEntradaZ.max - lobbyZ.min) < 0.01,
 	string.format(
 		"caminho [%g..%g], loja acaba em %g, lobby comeca em %g",
 		caminhoEntradaZ.min,
@@ -80,7 +90,13 @@ verificar(
 verificar(
 	"a zona de entrega e alcancavel pelo caminho de fuga",
 	sobrepoem(caminhoFugaZ, zonaZ),
-	string.format("caminho [%g..%g], zona [%g..%g]", caminhoFugaZ.min, caminhoFugaZ.max, zonaZ.min, zonaZ.max)
+	string.format(
+		"caminho [%g..%g], zona [%g..%g]",
+		caminhoFugaZ.min,
+		caminhoFugaZ.max,
+		zonaZ.min,
+		zonaZ.max
+	)
 )
 
 print("")
