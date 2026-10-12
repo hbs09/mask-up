@@ -12,10 +12,14 @@ on:
 
 jobs:
   verificar:
-    runs-on: ubuntu-latest
+    # Fixado em vez de `ubuntu-latest` de proposito: o `ubuntu-latest` migra para
+    # o Ubuntu 26 a 19 de outubro de 2026, e nao ha vantagem em descobrir isso
+    # atraves de um CI vermelho num dia em que estejamos a mexer noutra coisa.
+    # Subir isto e uma linha, e deve ser um commit proprio.
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Aqui o Rokit funciona normalmente: o problema de certificados que obriga
       # a usar scripts/instalar-ferramentas.ps1 na maquina local e causado pelo
@@ -63,13 +67,13 @@ jobs:
       # Falha se o default.project.json referir ficheiros que nao existem, ou se
       # a arvore nao puder ser construida.
       - name: Construir a place
-        run: rojo build --output assaltos.rbxlx
+        run: rojo build --output mask-up.rbxlx
 
       # Permite descarregar a place construida para abrir no Studio, util para
       # confirmar um PR sem ter o projeto montado localmente.
       - name: Guardar a place como artefacto
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: place-assaltos
-          path: assaltos.rbxlx
+          name: place-mask-up
+          path: mask-up.rbxlx
           retention-days: 14

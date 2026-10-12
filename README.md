@@ -85,7 +85,7 @@ lune run .lune/tests.luau Heist      # só os specs com "Heist" no nome
 
 ```powershell
 $env:PATH = "$pwd\tools;$env:PATH"
-rojo build --output assaltos.rbxlx   # cria a place; abrir no Studio
+rojo build --output mask-up.rbxlx    # cria a place; abrir no Studio
 rojo serve                           # e depois clicar "Connect" no painel do Rojo
 ```
 
