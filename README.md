@@ -1,7 +1,11 @@
-# Jogo de Assaltos Cooperativo (Roblox)
+# Mask Up
 
-Jogo cooperativo de assaltos para 1 a 4 jogadores, inspirado no género PayDay mas
-com nome, gangue, máscaras e música próprios — sem usar nada da marca PayDay.
+Jogo cooperativo de assaltos para Roblox, 1 a 4 jogadores. Inspirado no género
+PayDay mas com nome, gangue, máscaras e música próprios — sem usar nada da marca
+PayDay (Starbreeze).
+
+O nome liga-se à progressão cosmética central do jogo: as máscaras
+personalizáveis que desbloqueias na loja e no esconderijo.
 
 **Ciclo de jogo:** entrar no lobby com a equipa → escolher o assalto → tentar em
 furtivo → se o alarme disparar, aguentar as vagas de polícia → levar os sacos até
@@ -11,9 +15,12 @@ assalto.
 A especificação completa está em [docs/especificacao.md](docs/especificacao.md) e o
 roteiro em [docs/fases.md](docs/fases.md).
 
-> **Nome por decidir.** O projeto usa `AssaltosCooperativo` como provisório no
-> `default.project.json`. Escolher o nome do jogo e da gangue é a última tarefa
-> aberta da Fase 0.
+> **Nome da gangue ainda por decidir.** `The Masked` é uma sugestão de arranque,
+> não uma decisão. Aparece só neste README, por isso mudá-lo não custa nada.
+>
+> Antes de publicares no Roblox, confirma na pesquisa do próprio Roblox que
+> `Mask Up` continua livre. A pesquisa na web não indexa todos os jogos da
+> plataforma, por isso a verificação que fiz é um indício, não uma garantia.
 
 ## Estado atual
 

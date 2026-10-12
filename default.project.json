@@ -1,52 +1,65 @@
 {
-	"name": "AssaltosCooperativo",
+	"name": "Mask Up",
 	"tree": {
 		"$className": "DataModel",
-
 		"ReplicatedStorage": {
 			"Shared": {
 				"$path": "src/Shared",
-
 				"Remotes": {
 					"$className": "Folder",
-
-					"HeistStateChanged": { "$className": "RemoteEvent" },
-					"UpdateHUD": { "$className": "RemoteEvent" },
-
-					"RequestInteract": { "$className": "RemoteEvent" },
-					"PickUpBag": { "$className": "RemoteEvent" },
-					"DropBag": { "$className": "RemoteEvent" },
-
-					"WireChoice": { "$className": "RemoteEvent" },
-					"UseEmergencyKit": { "$className": "RemoteEvent" }
+					"HeistStateChanged": {
+						"$className": "RemoteEvent"
+					},
+					"UpdateHUD": {
+						"$className": "RemoteEvent"
+					},
+					"RequestInteract": {
+						"$className": "RemoteEvent"
+					},
+					"PickUpBag": {
+						"$className": "RemoteEvent"
+					},
+					"DropBag": {
+						"$className": "RemoteEvent"
+					},
+					"WireChoice": {
+						"$className": "RemoteEvent"
+					},
+					"UseEmergencyKit": {
+						"$className": "RemoteEvent"
+					}
 				}
 			}
 		},
-
 		"ServerScriptService": {
-			"Main": { "$path": "src/Server/Main.server.luau" },
-			"Core": { "$path": "src/Server/Core" },
-			"Services": { "$path": "src/Server/Services" }
-		},
-
-		"StarterPlayer": {
-			"$className": "StarterPlayer",
-
-			"StarterPlayerScripts": {
-				"$className": "StarterPlayerScripts",
-
-				"Client": { "$path": "src/Client/Client.client.luau" },
-				"Controllers": { "$path": "src/Client/Controllers" }
+			"Main": {
+				"$path": "src/Server/Main.server.luau"
+			},
+			"Core": {
+				"$path": "src/Server/Core"
+			},
+			"Services": {
+				"$path": "src/Server/Services"
 			}
 		},
-
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"Client": {
+					"$path": "src/Client/Client.client.luau"
+				},
+				"Controllers": {
+					"$path": "src/Client/Controllers"
+				}
+			}
+		},
 		"Workspace": {
 			"$className": "Workspace",
 			"$properties": {
 				"FilteringEnabled": true
 			}
 		},
-
 		"Lighting": {
 			"$className": "Lighting",
 			"$properties": {

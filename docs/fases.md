@@ -10,7 +10,8 @@ critério de conclusão concreto — resiste à tentação de avançar sem ele.
 - [x] Instalar o Studio, explorar Explorer, Properties e Output
 - [x] Script vs LocalScript; primeiro script (porta com E)
 - [ ] Luau: variáveis, if, ciclos, funções, tabelas, eventos
-- [ ] **Escolher nome do jogo e da gangue** ← única tarefa a bloquear o resto
+- [x] Escolher nome do jogo: **Mask Up**
+- [ ] Escolher nome da gangue (`The Masked` é só uma sugestão de arranque)
 
 **Concluída quando:** crias e ligas um script a um objeto sem seguir um tutorial
 passo a passo.
