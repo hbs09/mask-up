@@ -51,6 +51,8 @@ local CORES = {
 	lobby = Color3.fromRGB(60, 70, 90),
 	botaoAlarme = Color3.fromRGB(200, 60, 60),
 	waypoint = Color3.fromRGB(255, 200, 0),
+	terreno = Color3.fromRGB(70, 110, 70),
+	caminho = Color3.fromRGB(130, 125, 115),
 }
 
 type PropsParte = {
@@ -93,7 +95,73 @@ local function criarPasta(nome: string, pai: Instance): Folder
 	return pasta
 end
 
--- Chao e quatro paredes, com um vao de entrada na parede da frente (+Z).
+--[[
+	Terreno: um chao unico por baixo de tudo.
+
+	Porque e que existe: sem ele, o lobby e a loja eram duas plataformas a
+	flutuar com 50 studs de vazio entre as duas. Quem andasse para a frente no
+	lobby caía e morria antes de chegar a joalharia.
+
+	O topo fica exatamente em y = 0, ao nivel do chao da loja e do lobby, para
+	nao haver degrau nem queda em nenhuma transicao.
+]]
+local function construirTerreno(pai: Instance)
+	local terreno = criarPasta("Terreno", pai)
+
+	criarParte({
+		nome = "Chao",
+		-- Cobre do lobby (z ~110) ate atras da carrinha (z ~-60), com folga.
+		tamanho = Vector3.new(160, 2, 200),
+		posicao = Vector3.new(0, -1, 30),
+		cor = CORES.terreno,
+		pai = terreno,
+		material = Enum.Material.Grass,
+	})
+
+	-- Caminho do lobby ate a entrada da loja, para se ver para onde ir.
+	criarParte({
+		nome = "CaminhoEntrada",
+		tamanho = Vector3.new(LOJA.larguraEntrada, 0.4, LOBBY_Z - 20 - LOJA.profundidade / 2),
+		posicao = Vector3.new(0, 0.2, (LOBBY_Z - 20 + LOJA.profundidade / 2) / 2),
+		cor = CORES.caminho,
+		pai = terreno,
+		material = Enum.Material.Concrete,
+	})
+
+	-- E das traseiras da loja ate a carrinha.
+	criarParte({
+		nome = "CaminhoFuga",
+		tamanho = Vector3.new(LOJA.larguraEntrada, 0.4, 16),
+		posicao = Vector3.new(0, 0.2, -(LOJA.profundidade / 2) - 8),
+		cor = CORES.caminho,
+		pai = terreno,
+		material = Enum.Material.Concrete,
+	})
+end
+
+--[[
+	Uma parede com um vao ao meio, feita de dois pedacos.
+
+	Usada na frente (entrada) e nas traseiras (saida para a carrinha). Sem a
+	saida de tras, o percurso ate a carrinha obrigava a dar a volta ao edificio
+	inteiro a carregar um saco em marcha lenta.
+]]
+local function paredeComVao(props: { nome: string, z: number, pai: Instance })
+	local larguraPedaco = (LOJA.largura - LOJA.larguraEntrada) / 2
+	local centroPedaco = LOJA.larguraEntrada / 2 + larguraPedaco / 2
+
+	for _, lado in { -1, 1 } do
+		criarParte({
+			nome = props.nome .. (if lado == -1 then "Esquerda" else "Direita"),
+			tamanho = Vector3.new(larguraPedaco, LOJA.altura, LOJA.espessuraParede),
+			posicao = Vector3.new(lado * centroPedaco, LOJA.altura / 2, props.z),
+			cor = CORES.parede,
+			pai = props.pai,
+		})
+	end
+end
+
+-- Chao e paredes, com vao de entrada a frente (+Z) e de saida atras (-Z).
 local function construirLoja(pai: Instance)
 	local joalharia = criarPasta("Joalharia", pai)
 
@@ -110,7 +178,7 @@ local function construirLoja(pai: Instance)
 	local metadeZ = LOJA.profundidade / 2
 	local alturaMeio = LOJA.altura / 2
 
-	-- Paredes laterais e de fundo, inteiras.
+	-- Paredes laterais, inteiras.
 	criarParte({
 		nome = "ParedeEsquerda",
 		tamanho = Vector3.new(LOJA.espessuraParede, LOJA.altura, LOJA.profundidade),
@@ -125,27 +193,11 @@ local function construirLoja(pai: Instance)
 		cor = CORES.parede,
 		pai = joalharia,
 	})
-	criarParte({
-		nome = "ParedeFundo",
-		tamanho = Vector3.new(LOJA.largura, LOJA.altura, LOJA.espessuraParede),
-		posicao = Vector3.new(0, alturaMeio, -metadeZ),
-		cor = CORES.parede,
-		pai = joalharia,
-	})
 
-	-- Parede da frente em dois pedacos, deixando o vao de entrada no meio.
-	local larguraPedaco = (LOJA.largura - LOJA.larguraEntrada) / 2
-	local centroPedaco = LOJA.larguraEntrada / 2 + larguraPedaco / 2
-
-	for _, lado in { -1, 1 } do
-		criarParte({
-			nome = if lado == -1 then "ParedeFrenteEsquerda" else "ParedeFrenteDireita",
-			tamanho = Vector3.new(larguraPedaco, LOJA.altura, LOJA.espessuraParede),
-			posicao = Vector3.new(lado * centroPedaco, alturaMeio, metadeZ),
-			cor = CORES.parede,
-			pai = joalharia,
-		})
-	end
+	-- Frente e traseiras com vao, alinhados com o lobby e com a carrinha: o
+	-- percurso fica uma linha reta, lobby -> loja -> carrinha.
+	paredeComVao({ nome = "ParedeFrente", z = metadeZ, pai = joalharia })
+	paredeComVao({ nome = "ParedeTras", z = -metadeZ, pai = joalharia })
 
 	-- Balcao no meio, so para o espaco nao ser uma caixa vazia e para dar
 	-- obstaculos aos raycasts de visao dos guardas na Fase 1.
@@ -198,7 +250,9 @@ local function construirSaque(pai: Instance)
 			-- Um unico cofre chama-se "Cofre"; vários passam a Cofre1, Cofre2...
 			nome = if Config.mapa.cofres == 1 then "Cofre" else "Cofre" .. indice,
 			tamanho = Vector3.new(8, 8, 4),
-			posicao = Vector3.new((indice - 1) * 12, 4, -(LOJA.profundidade / 2 - 4)),
+			-- Encostado a esquerda da parede de tras, nao ao centro: ao centro
+			-- tapava o vao de saida para a carrinha.
+			posicao = Vector3.new(-18 + (indice - 1) * 12, 4, -(LOJA.profundidade / 2 - 4)),
 			cor = CORES.cofre,
 			pai = loot,
 			material = Enum.Material.Metal,
@@ -326,7 +380,9 @@ function MapBuilder.init() end
 	desenvolvimento.
 ]]
 function MapBuilder.start()
-	for _, nome in { "Map", "Loot", "EscapeZone", "Waypoints", "Guards", "Cameras", "Lobby" } do
+	local aApagar =
+		{ "Terreno", "Map", "Loot", "EscapeZone", "Waypoints", "Guards", "Cameras", "Lobby" }
+	for _, nome in aApagar do
 		local existente = workspace:FindFirstChild(nome)
 		if existente then
 			existente:Destroy()
@@ -337,6 +393,9 @@ function MapBuilder.start()
 	if botaoExistente then
 		botaoExistente:Destroy()
 	end
+
+	-- O terreno primeiro: e o chao em que tudo o resto assenta.
+	construirTerreno(workspace)
 
 	local map = criarPasta("Map", workspace)
 	construirLoja(map)
