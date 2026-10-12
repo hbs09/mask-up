@@ -99,6 +99,48 @@ return function(t)
 			end)
 		end)
 
+		t.describe("visao dos guardas", function()
+			t.it("tem a forma que o GuardaCore espera", function()
+				-- O adaptador faz `GuardaCore.novo({ config = Config.visao })`.
+				t.expect(type(Config.visao.angulo)).toBe("number")
+				t.expect(type(Config.visao.distancia)).toBe("number")
+				t.expect(type(Config.visao.segundosParaDetetar)).toBe("number")
+				t.expect(type(Config.visao.segundosParaEsquecer)).toBe("number")
+			end)
+
+			t.it("o angulo e um cone real, nem cego nem total", function()
+				-- 0 fazia os guardas nunca verem nada; 360 fazia-os ver atras das
+				-- costas, e nenhum dos dois e um jogo.
+				t.expect(Config.visao.angulo > 0).toBeTruthy()
+				t.expect(Config.visao.angulo < 360).toBeTruthy()
+			end)
+
+			t.it("a distancia de visao e positiva e cabe no mapa", function()
+				t.expect(Config.visao.distancia > 0).toBeTruthy()
+				-- Maior que a diagonal da loja faria os guardas verem de parede
+				-- a parede, e o furtivo ficava impossivel.
+				local diagonal = math.sqrt(60 * 60 + 40 * 40)
+				t.expect(Config.visao.distancia < diagonal * 1.5).toBeTruthy()
+			end)
+
+			t.it("os tempos sao positivos", function()
+				t.expect(Config.visao.segundosParaDetetar > 0).toBeTruthy()
+				t.expect(Config.visao.segundosParaEsquecer > 0).toBeTruthy()
+			end)
+
+			t.it("esquecer e mais lento que detetar", function()
+				-- Se fosse ao contrario, bastava um passo para tras para apagar
+				-- toda a suspeicao acumulada, e ser notado deixava de ter peso.
+				t.expect(Config.visao.segundosParaEsquecer > Config.visao.segundosParaDetetar)
+					.toBeTruthy()
+			end)
+
+			t.it("detetar leva tempo suficiente para dar para reagir", function()
+				-- Deteccao instantanea tornava o furtivo em tentativa e erro.
+				t.expect(Config.visao.segundosParaDetetar >= 0.5).toBeTruthy()
+			end)
+		end)
+
 		t.describe("recompensas", function()
 			t.it("o bonus furtivo premeia, nunca penaliza", function()
 				-- Multiplicador abaixo de 1 faria do caminho furtivo um castigo,

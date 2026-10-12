@@ -62,6 +62,20 @@ local Config = {
 		cooldown = 0.5,
 	},
 
+	-- Passado a GuardaCore.novo(). Secção 5 do documento: "visao = angulo
+	-- (ex.: 90°) + distancia + raycast sem obstaculos; barra de suspeita antes
+	-- de dar o alarme".
+	visao = {
+		angulo = 90, -- abertura TOTAL do cone: 45° para cada lado
+		distancia = 40,
+		-- Tempo a vista descoberta antes de o guarda dar o alarme.
+		segundosParaDetetar = 1.5,
+		-- Tempo escondido para a barra voltar a zero. Mais longo que o de
+		-- detetar de proposito: quem foi notado tem de se esconder de verdade,
+		-- em vez de sair da vista por um instante.
+		segundosParaEsquecer = 4,
+	},
+
 	tempos = {
 		lobby = 15, -- espera antes de arrancar o assalto
 		fuga = 60, -- tempo para chegar a carrinha depois de ela aparecer
