@@ -122,6 +122,15 @@ local Config = {
 			tatica possivel e esperar por sorte.
 		]]
 		pausaNoWaypoint = 3,
+		--[[
+			Desenhar as arestas do cone de visao no chao.
+
+			Serve para testar, mas provavelmente fica no jogo final: sem isto,
+			saber se estas dentro do campo de visao de um guarda e adivinhar, e
+			um jogo furtivo em que a fronteira nao se ve e um jogo de sorte.
+			Se um dia se quiser uma dificuldade mais dura, passa a false.
+		]]
+		mostrarCone = true,
 	},
 
 	-- Quantos pontos de saque o MapBuilder cria. O Config.spec usa estes valores

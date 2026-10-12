@@ -54,6 +54,7 @@ type Guarda = {
 	modelo: Model,
 	cabeca: BasePart,
 	barraSuspeita: Frame,
+	arestasDoCone: { BasePart },
 	indiceWaypoint: number,
 	-- Rota devolvida pelo PathfindingService para o waypoint atual.
 	rota: { Vector3 },
@@ -128,6 +129,55 @@ local function criarBarraDeSuspeita(cabeca: BasePart): Frame
 	return barra
 end
 
+--[[
+	Desenha as duas arestas do cone de visao, rasteiras ao chao.
+
+	Porque arestas e nao um cone solido: as arestas sao geometria EXACTA -- duas
+	barras rodadas por +/- metade do angulo, com o comprimento da distancia de
+	visao. Um cone aproximado por caixas daria uma ideia errada da fronteira, e a
+	fronteira e justamente a informacao que o jogador precisa.
+
+	Sem isto, saber se estas dentro do campo de visao e adivinhar. Com isto
+	ve-se no chao onde comeca e acaba.
+]]
+local function criarArestasDoCone(modelo: Model, posicao: Vector3): { BasePart }
+	if not Config.guardas.mostrarCone then
+		return {}
+	end
+
+	-- Anotada porque em Luau as tabelas sao invariantes: um { Part } nao serve
+	-- onde se espera um { BasePart }.
+	local arestas: { BasePart } = {}
+	local meioAngulo = math.rad(Config.visao.angulo / 2)
+	local alcance = Config.visao.distancia
+
+	for _, lado in { -1, 1 } do
+		-- Roda o -Z (a frente do modelo) em torno de Y por +/- meio angulo.
+		local direcao = Vector3.new(math.sin(lado * meioAngulo), 0, -math.cos(meioAngulo))
+		local centro = posicao + Vector3.new(0, 0.3, 0) + direcao * (alcance / 2)
+
+		local aresta = Instance.new("Part")
+		aresta.Name = if lado == -1 then "ArestaEsquerda" else "ArestaDireita"
+		-- O comprimento vai no Z, para a CFrame.lookAt o alinhar com a direcao.
+		aresta.Size = Vector3.new(0.3, 0.1, alcance)
+		aresta.CFrame = CFrame.lookAt(centro, centro + direcao)
+		aresta.Color = Color3.fromRGB(240, 200, 60)
+		aresta.Material = Enum.Material.Neon
+		aresta.Transparency = 0.5
+		aresta.Anchored = true
+		aresta.CanCollide = false
+		-- Sem isto as arestas apareciam nos raycasts e os guardas tapavam-se uns
+		-- aos outros com as proprias linhas de visao.
+		aresta.CanQuery = false
+		aresta.CanTouch = false
+		aresta.Parent = modelo
+
+		table.insert(arestas, aresta)
+	end
+
+	return arestas
+end
+
 local function criarGuarda(id: number, posicao: Vector3): Guarda
 	local modelo = Instance.new("Model")
 	modelo.Name = "Guarda" .. id
@@ -160,6 +210,11 @@ local function criarGuarda(id: number, posicao: Vector3): Guarda
 		Nao e decoracao: sem ela nao se percebe para onde o guarda esta a olhar,
 		e um jogo furtivo em que nao se le a direcao do olhar e um jogo de
 		adivinhar.
+
+		ATENCAO AO SINAL. A frente de uma CFrame no Roblox e o LookVector, que
+		aponta para o -Z local. Eu tinha isto em +0.8 e a viseira ficava nas
+		COSTAS do guarda: parecia que ele via para tras, quando o que estava
+		invertido era o indicador, nao a detecao.
 	]]
 	local viseira = Instance.new("Part")
 	viseira.Name = "Viseira"
@@ -168,8 +223,10 @@ local function criarGuarda(id: number, posicao: Vector3): Guarda
 	viseira.Material = Enum.Material.Neon
 	viseira.Anchored = true
 	viseira.CanCollide = false
-	viseira.Position = posicao + Vector3.new(0, ALTURA_CABECA, 0.8)
+	viseira.Position = posicao + Vector3.new(0, ALTURA_CABECA, -0.8)
 	viseira.Parent = modelo
+
+	local arestas = criarArestasDoCone(modelo, posicao)
 
 	modelo.PrimaryPart = corpo
 	modelo.Parent = pastaGuardas
@@ -179,10 +236,12 @@ local function criarGuarda(id: number, posicao: Vector3): Guarda
 		modelo = modelo,
 		cabeca = cabeca,
 		barraSuspeita = criarBarraDeSuspeita(cabeca),
+		arestasDoCone = arestas,
 		indiceWaypoint = ((id - 1) % math.max(#waypoints, 1)) + 1,
 		rota = {},
 		passoDaRota = 1,
-		direcao = Vector3.new(0, 0, 1),
+		-- -Z, para coincidir com o LookVector do modelo recem-criado.
+		direcao = Vector3.new(0, 0, -1),
 		esperarAte = 0,
 		aCalcularRota = false,
 	}
@@ -359,10 +418,18 @@ local function atualizarVisao(dt: number)
 			end
 		end
 
-		guarda.barraSuspeita.Size = UDim2.fromScale(maior, 1)
 		-- Amarelo a vermelho conforme sobe, para se ler sem olhar para o tamanho.
-		guarda.barraSuspeita.BackgroundColor3 =
-			Color3.fromRGB(240, math.floor(200 - 140 * maior), 60)
+		local cor = Color3.fromRGB(240, math.floor(200 - 140 * maior), 60)
+
+		guarda.barraSuspeita.Size = UDim2.fromScale(maior, 1)
+		guarda.barraSuspeita.BackgroundColor3 = cor
+
+		-- As arestas acompanham: da-se para perceber que fomos notados sem ter
+		-- de olhar para a barra acima da cabeca dele.
+		for _, aresta in guarda.arestasDoCone do
+			aresta.Color = cor
+			aresta.Transparency = 0.5 - 0.3 * maior
+		end
 	end
 end
 
