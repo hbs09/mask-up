@@ -44,12 +44,16 @@ início ao fim — a regra de ouro nº5 ("pequeno e completo antes de grande"):
 - [x] `Config` e `HeistState` — invariantes do jogo (20 testes)
 - [x] `DataService` — adaptador, perfil de sessão
 - [x] `AlarmService` — porta de entrada única
-- [ ] `HeistCore` — transições, contagem de sacos, pagamento com bónus furtivo
-- [ ] `LootCore` — posse de sacos, limite, WalkSpeed, entrega
+- [x] `HeistCore` — transições, contagem de sacos, pagamento (51 testes)
+- [x] `LootCore` — posse de sacos, limite, WalkSpeed, entrega (34 testes)
 - [ ] `MapBuilder` — joalharia de teste gerada por código
 - [ ] `HeistService` e `LootService` — adaptadores sobre o core
 - [ ] `HUDController` e `InteractController`
 - [ ] Jogar `Lobby → Furtivo → saco → carrinha → Fuga → Fim` com 2 jogadores
+
+**Toda a lógica do assalto está escrita e testada.** O que falta é tradução para
+o mundo do Roblox: criar Parts, ligar ProximityPrompts, enviar Remotes e desenhar
+o HUD. Nenhuma regra de jogo nova.
 
 ## Fase 2 — Primeiro assalto completo (3 a 4 semanas)
 

@@ -26,19 +26,28 @@ roteiro em [docs/fases.md](docs/fases.md).
 
 Fase 1 a arrancar. O que já existe e está testado:
 
+**A lógica do assalto está completa e testada. Faltam os adaptadores que a ligam
+ao Roblox.**
+
 | Módulo | Estado |
 |---|---|
 | `ValidacaoCore` | Completo, 24 testes — as quatro verificações da regra de ouro nº2 |
 | `PerfilCore` | Completo, 27 testes — perfil da secção 7 e migração de versão |
+| `HeistCore` | Completo, 51 testes — estados, sacos, bónus furtivo, pagamento |
+| `LootCore` | Completo, 34 testes — posse de sacos, limite, WalkSpeed, entrega |
 | `Config` / `HeistState` | Completos, 20 testes de invariantes |
 | `DataService` | Adaptador funcional, perfil só de sessão (DataStore é Fase 3) |
 | `AlarmService` | Completo — porta de entrada única do alarme |
-| `HeistCore` / `LootCore` | **Por fazer** — a lógica da fatia vertical |
-| `HeistService` / `LootService` / `MapBuilder` | Esqueletos com o contrato definido |
-| `HUDController` / `InteractController` | Esqueletos |
+| `MapBuilder` | **Esqueleto** — joalharia de teste por gerar |
+| `HeistService` / `LootService` | **Esqueletos** — contrato definido, por ligar ao core |
+| `HUDController` / `InteractController` | **Esqueletos** |
 
-**Ainda não há jogo para jogar.** A place constrói e os serviços arrancam, mas o
-assalto não corre do início ao fim até o `HeistCore` e o `LootCore` existirem.
+**156 testes, ~60ms.** A suite foi validada com testes de mutação: estragar de
+propósito o "saco entregue sai do mundo", o mínimo de sacos para a fuga, ou a
+marca de alarme faz falhar 2, 4 e 3 testes respetivamente.
+
+**Ainda não há jogo para jogar.** A place constrói e os serviços arrancam, mas
+nada aparece no mapa até o `MapBuilder` e os dois adaptadores existirem.
 
 ## Começar
 
