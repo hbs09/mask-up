@@ -4,31 +4,7 @@
 		"$className": "DataModel",
 		"ReplicatedStorage": {
 			"Shared": {
-				"$path": "src/Shared",
-				"Remotes": {
-					"$className": "Folder",
-					"HeistStateChanged": {
-						"$className": "RemoteEvent"
-					},
-					"UpdateHUD": {
-						"$className": "RemoteEvent"
-					},
-					"RequestInteract": {
-						"$className": "RemoteEvent"
-					},
-					"PickUpBag": {
-						"$className": "RemoteEvent"
-					},
-					"DropBag": {
-						"$className": "RemoteEvent"
-					},
-					"WireChoice": {
-						"$className": "RemoteEvent"
-					},
-					"UseEmergencyKit": {
-						"$className": "RemoteEvent"
-					}
-				}
+				"$path": "src/Shared"
 			}
 		},
 		"ServerScriptService": {
