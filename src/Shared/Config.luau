@@ -95,14 +95,23 @@ local Config = {
 		nivelMaximo = 50,
 	},
 
+	-- Comportamento dos guardas. Quantos sao e como se mexem; o que VEEM esta
+	-- em `visao`, porque as cameras da Fase 1 vao reutilizar esse cone.
+	guardas = {
+		quantidade = 3, -- secção 8: 3 a 4 guardas
+		velocidade = 8, -- mais lentos que o jogador (16), para dar para contornar
+		-- Pausa em cada waypoint. Sem ela a ronda e um circuito continuo e nunca
+		-- ha janelas para atravessar.
+		pausaNoWaypoint = 2,
+	},
+
 	-- Quantos pontos de saque o MapBuilder cria. O Config.spec usa estes valores
 	-- para garantir que ha saque suficiente para atingir minimoSacosParaFuga.
 	mapa = {
 		montras = 4,
 		cofres = 1,
-		guardas = 3, -- secção 8: 3 a 4 guardas
-		camaras = 2,
-		civis = 3,
+		camaras = 2, -- Fase 1
+		civis = 3, -- Fase 1
 	},
 }
 

@@ -12,25 +12,13 @@
 	regra acabam sempre por discordar uma da outra.
 ]]
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
-
-local HeistState = require(ReplicatedStorage.Shared.HeistState)
-local Remotes = require(ReplicatedStorage.Shared.Remotes)
-local ValidacaoCore = require(ServerScriptService.Core.ValidacaoCore)
-
 local AlarmService = {}
 
 export type Deps = {
-	validacao: ValidacaoCore.Validador,
 	heist: {
-		estadoAtual: () -> string,
 		dispararAlarme: (motivo: string) -> boolean,
 	},
 }
-
--- Nome da Part de teste que o MapBuilder cria. Sai na Fase 1, com os guardas.
-local BOTAO_TESTE = "BotaoAlarmeTeste"
 
 local deps: Deps
 
@@ -39,58 +27,18 @@ function AlarmService.init(dependencias: Deps)
 end
 
 --[[
-	Trata o Remote RequestInteract (secção 6 do documento).
+	Nao ha nada para ligar no arranque.
 
-	Por agora o unico objeto interagivel e o botao de alarme de teste, por isso
-	vive aqui. Quando houver painel de seguranca, cofre e portas, isto passa para
-	um InteractService proprio -- a validacao e que nao muda, porque ja esta
-	toda no ValidacaoCore.
+	Ate agora este servico tratava o Remote RequestInteract, por causa de um
+	BotaoAlarmeTeste que existia como muleta para exercitar o caminho do alarme
+	antes de haver guardas. Com o GuardService, o alarme passou a ser disparado
+	por quem devia, e o botao saiu.
+
+	O RequestInteract volta na Fase 1, com o painel de seguranca das cameras, e
+	ai pertence a um InteractService proprio -- generico, em vez de escondido
+	aqui.
 ]]
-local function aoPedirInteragir(jogador: Player, objeto: unknown)
-	if typeof(objeto) ~= "Instance" then
-		return
-	end
-
-	local parte = objeto :: Instance
-	if not parte:IsA("BasePart") or parte.Name ~= BOTAO_TESTE then
-		return
-	end
-
-	local personagem = jogador.Character
-	local raiz = personagem and personagem:FindFirstChild("HumanoidRootPart") :: BasePart?
-	local humanoide = personagem and personagem:FindFirstChildOfClass("Humanoid")
-	if not raiz then
-		return
-	end
-
-	local ok, motivo = deps.validacao:podeInteragir({
-		jogadorId = jogador.UserId,
-		vivo = humanoide ~= nil and humanoide.Health > 0,
-		posicaoJogador = { x = raiz.Position.X, y = raiz.Position.Y, z = raiz.Position.Z },
-		posicaoObjeto = { x = parte.Position.X, y = parte.Position.Y, z = parte.Position.Z },
-		estadoAtual = deps.heist.estadoAtual(),
-		estadosPermitidos = { HeistState.Furtivo },
-		acao = "RequestInteract",
-		agora = os.clock(),
-	})
-
-	if not ok then
-		print(
-			string.format(
-				"[AlarmService] interacao recusada a %s: %s",
-				jogador.Name,
-				tostring(motivo)
-			)
-		)
-		return
-	end
-
-	AlarmService.Trigger("botao_teste")
-end
-
-function AlarmService.start()
-	Remotes.RequestInteract.OnServerEvent:Connect(aoPedirInteragir)
-end
+function AlarmService.start() end
 
 --[[
 	Dispara o alarme.

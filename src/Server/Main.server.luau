@@ -28,6 +28,7 @@ local DataService = require(Services.DataService)
 local MapBuilder = require(Services.MapBuilder)
 local AlarmService = require(Services.AlarmService)
 local LootService = require(Services.LootService)
+local GuardService = require(Services.GuardService)
 local HeistService = require(Services.HeistService)
 
 --[[
@@ -47,11 +48,9 @@ DataService.init()
 MapBuilder.init()
 
 AlarmService.init({
-	validacao = validacao,
 	-- Passamos funcoes em vez do servico inteiro, para a dependencia ser
 	-- explicita e pequena: o AlarmService nao pode pagar dinheiro por engano.
 	heist = {
-		estadoAtual = HeistService.estadoAtual,
 		dispararAlarme = HeistService.dispararAlarme,
 	},
 })
@@ -61,6 +60,23 @@ LootService.init({
 	heist = {
 		estadoAtual = HeistService.estadoAtual,
 		registarSacoEntregue = HeistService.registarSacoEntregue,
+	},
+})
+
+--[[
+	O GuardService so precisa de saber o estado (para vigiar apenas em Furtivo) e
+	de poder tocar o alarme. Nao conhece sacos, dinheiro nem o mapa.
+
+	Passa pelo AlarmService e nao diretamente pelo HeistService, porque o alarme
+	tem uma porta de entrada unica -- e agora e um guarda a usa-la, em vez do
+	botao de teste.
+]]
+GuardService.init({
+	heist = {
+		estadoAtual = HeistService.estadoAtual,
+	},
+	alarme = {
+		Trigger = AlarmService.Trigger,
 	},
 })
 
@@ -74,6 +90,9 @@ HeistService.init({
 	saque = {
 		reiniciar = LootService.reiniciar,
 	},
+	vigilancia = {
+		reiniciar = GuardService.reiniciar,
+	},
 })
 
 -- === Fase 2: start. O mapa primeiro, porque os outros procuram objetos nele. ===
@@ -82,6 +101,7 @@ MapBuilder.start()
 DataService.start()
 AlarmService.start()
 LootService.start()
+GuardService.start()
 HeistService.start()
 
 print("[Main] servidor pronto")

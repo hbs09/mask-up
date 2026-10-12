@@ -141,6 +141,36 @@ return function(t)
 			end)
 		end)
 
+		t.describe("guardas", function()
+			t.it("ha guardas suficientes para a loja fazer sentido", function()
+				-- Secção 8 do documento: 3 a 4 guardas.
+				t.expect(Config.guardas.quantidade >= 1).toBeTruthy()
+			end)
+
+			t.it("nao ha mais guardas que waypoints na ronda", function()
+				-- O MapBuilder cria 6 waypoints. Mais guardas que isso punha dois
+				-- a partilhar o mesmo destino e a andar colados.
+				t.expect(Config.guardas.quantidade <= 6).toBeTruthy()
+			end)
+
+			t.it("o guarda e mais lento que o jogador sem saco", function()
+				-- Se fossem mais rapidos, nao havia como contorna-los e o furtivo
+				-- passava a depender de sorte.
+				t.expect(Config.guardas.velocidade < Config.velocidadeNormal).toBeTruthy()
+			end)
+
+			t.it("ate com o saco grande o jogador anda mais que um guarda em ronda", function()
+				-- Os guardas desta fase DETETAM, nao perseguem. A ronda nunca deve
+				-- ser mais rapida que o jogador carregado: ficar entalado entre
+				-- dois guardas tem de ser evitavel, nao inevitavel.
+				t.expect(Config.guardas.velocidade < Config.sacos.grande.velocidade).toBeTruthy()
+			end)
+
+			t.it("pausa nos waypoints, para haver janelas para atravessar", function()
+				t.expect(Config.guardas.pausaNoWaypoint > 0).toBeTruthy()
+			end)
+		end)
+
 		t.describe("recompensas", function()
 			t.it("o bonus furtivo premeia, nunca penaliza", function()
 				-- Multiplicador abaixo de 1 faria do caminho furtivo um castigo,

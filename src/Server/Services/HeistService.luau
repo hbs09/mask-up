@@ -34,6 +34,9 @@ export type Deps = {
 	saque: {
 		reiniciar: () -> (),
 	},
+	vigilancia: {
+		reiniciar: () -> (),
+	},
 }
 
 local deps: Deps
@@ -247,6 +250,7 @@ function HeistService.reiniciar()
 	-- Depois da transicao, para as contagens ficarem a zero no HUD que se segue.
 	core:reiniciar()
 	deps.saque.reiniciar()
+	deps.vigilancia.reiniciar()
 	enviarHUDaTodos()
 end
 

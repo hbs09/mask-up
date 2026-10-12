@@ -56,32 +56,16 @@ local function seguirSacos()
 	pasta.ChildAdded:Connect(ligarPromptDoSaco)
 end
 
--- Objetos do mundo que usam RequestInteract (por agora, o botao de alarme).
-local function ligarPromptDeObjeto(objeto: Instance)
-	local prompt = objeto:FindFirstChildOfClass("ProximityPrompt")
-	if not prompt then
-		return
-	end
-
-	prompt.Triggered:Connect(function()
-		Remotes.RequestInteract:FireServer(objeto)
-	end)
-end
-
-local function seguirObjetos()
-	local botao = workspace:WaitForChild("BotaoAlarmeTeste", 30)
-	if botao then
-		ligarPromptDeObjeto(botao)
-	end
-end
-
 function InteractController.init() end
 
 function InteractController.start()
 	-- Em task.spawn porque usa WaitForChild e nao deve travar o arranque dos
 	-- outros controladores se o mapa demorar.
+	--
+	-- Nao ha mais nada a seguir por agora: o unico objeto que usava
+	-- RequestInteract era o BotaoAlarmeTeste, que saiu quando os guardas
+	-- passaram a disparar o alarme. Volta na Fase 1, com o painel de seguranca.
 	task.spawn(seguirSacos)
-	task.spawn(seguirObjetos)
 
 	UserInputService.InputBegan:Connect(function(input, foiProcessado)
 		if foiProcessado then

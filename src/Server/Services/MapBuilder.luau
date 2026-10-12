@@ -16,10 +16,10 @@
 	  Workspace/Guards/          vazia por agora
 	  Workspace/Cameras/         vazia por agora
 	  Workspace/Lobby/           chao e SpawnLocation, afastado da loja
-	  Workspace/BotaoAlarmeTeste
 
-	O BotaoAlarmeTeste existe para exercitar Furtivo -> Alarme -> Fuga antes de
-	haver guardas. Sai quando o GuardService entrar, na Fase 1.
+	A pasta Guards fica vazia: e o GuardService que a povoa a partir dos
+	Waypoints, da mesma maneira que o LootService povoa os Sacos a partir dos
+	marcadores de Loot.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -49,7 +49,6 @@ local CORES = {
 	carrinha = Color3.fromRGB(40, 60, 100),
 	zonaFuga = Color3.fromRGB(80, 200, 120),
 	lobby = Color3.fromRGB(60, 70, 90),
-	botaoAlarme = Color3.fromRGB(200, 60, 60),
 	waypoint = Color3.fromRGB(255, 200, 0),
 	terreno = Color3.fromRGB(70, 110, 70),
 	caminho = Color3.fromRGB(130, 125, 115),
@@ -344,34 +343,6 @@ local function construirLobby(pai: Instance)
 	spawn.Parent = lobby
 end
 
---[[
-	Botao para disparar o alarme a mao.
-
-	Existe para podermos exercitar o caminho Furtivo -> Alarme -> Fuga antes de
-	haver guardas, cameras ou civis. Quando o GuardService entrar na Fase 1, este
-	botao sai -- e o AlarmService nao muda, porque continua a ser a unica porta
-	de entrada do alarme.
-]]
-local function construirBotaoAlarme(pai: Instance)
-	local botao = criarParte({
-		nome = "BotaoAlarmeTeste",
-		-- Encostado por dentro a parede esquerda, perto da entrada.
-		tamanho = Vector3.new(1, 4, 4),
-		posicao = Vector3.new(-(LOJA.largura / 2 - LOJA.espessuraParede), 3, 10),
-		cor = CORES.botaoAlarme,
-		pai = pai,
-		material = Enum.Material.Neon,
-	})
-
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.ActionText = "Disparar alarme"
-	prompt.ObjectText = "Botao de teste"
-	prompt.HoldDuration = 0.5 -- evita disparos acidentais ao passar
-	prompt.MaxActivationDistance = 8
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = botao
-end
-
 function MapBuilder.init() end
 
 --[[
@@ -389,11 +360,6 @@ function MapBuilder.start()
 		end
 	end
 
-	local botaoExistente = workspace:FindFirstChild("BotaoAlarmeTeste")
-	if botaoExistente then
-		botaoExistente:Destroy()
-	end
-
 	-- O terreno primeiro: e o chao em que tudo o resto assenta.
 	construirTerreno(workspace)
 
@@ -404,11 +370,13 @@ function MapBuilder.start()
 	construirFuga(workspace)
 	construirWaypoints(workspace)
 	construirLobby(workspace)
-	construirBotaoAlarme(workspace)
 
-	-- Vazias por agora, mas criadas para a arvore corresponder a secção 3 do
-	-- documento e os servicos da Fase 1 encontrarem onde pôr as coisas.
+	-- O GuardService povoa a pasta Guards a partir dos Waypoints, da mesma
+	-- maneira que o LootService povoa os Sacos a partir dos marcadores de Loot.
 	criarPasta("Guards", workspace)
+
+	-- Vazia por agora; as cameras entram na Fase 1 e reutilizam o cone de visao
+	-- do GuardaCore.
 	criarPasta("Cameras", workspace)
 
 	print("[MapBuilder] joalharia de teste construida")
