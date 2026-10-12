@@ -67,9 +67,22 @@ local Config = {
 	-- de dar o alarme".
 	visao = {
 		angulo = 90, -- abertura TOTAL do cone: 45° para cada lado
-		distancia = 40,
-		-- Tempo a vista descoberta antes de o guarda dar o alarme.
-		segundosParaDetetar = 1.5,
+		--[[
+			20 e nao 40, e o motivo e geometrico em vez de gosto.
+
+			O cone de um guarda cobre (angulo/360) * pi * r². Com r = 40 isso da
+			1257 studs quadrados, e tres guardas cobriam 3770 numa loja de 2400 --
+			157% da area. Havia mais visao do que chao, e portanto nenhuma rota
+			furtiva possivel. Com r = 20 a cobertura cai para 39% e ha janelas
+			reais.
+
+			O Config.spec fixa esta relacao como invariante, para afinar isto nao
+			voltar a tornar o assalto impossivel em silencio.
+		]]
+		distancia = 20,
+		-- Tempo a vista descoberta antes de o guarda dar o alarme. Atravessar um
+		-- cone de passagem nao deve custar o assalto.
+		segundosParaDetetar = 2.5,
 		-- Tempo escondido para a barra voltar a zero. Mais longo que o de
 		-- detetar de proposito: quem foi notado tem de se esconder de verdade,
 		-- em vez de sair da vista por um instante.
@@ -100,9 +113,15 @@ local Config = {
 	guardas = {
 		quantidade = 3, -- secção 8: 3 a 4 guardas
 		velocidade = 8, -- mais lentos que o jogador (16), para dar para contornar
-		-- Pausa em cada waypoint. Sem ela a ronda e um circuito continuo e nunca
-		-- ha janelas para atravessar.
-		pausaNoWaypoint = 2,
+		--[[
+			Pausa em cada waypoint. Sem ela a ronda e um circuito continuo e nunca
+			ha janelas para atravessar.
+
+			3 segundos e nao 2: parado, o cone do guarda e previsivel e da-se para
+			aprender a ronda. Em movimento continuo o cone varre a sala e a unica
+			tatica possivel e esperar por sorte.
+		]]
+		pausaNoWaypoint = 3,
 	},
 
 	-- Quantos pontos de saque o MapBuilder cria. O Config.spec usa estes valores

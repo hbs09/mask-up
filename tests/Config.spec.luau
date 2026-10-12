@@ -115,12 +115,37 @@ return function(t)
 				t.expect(Config.visao.angulo < 360).toBeTruthy()
 			end)
 
-			t.it("a distancia de visao e positiva e cabe no mapa", function()
+			t.it("a distancia de visao e positiva", function()
 				t.expect(Config.visao.distancia > 0).toBeTruthy()
-				-- Maior que a diagonal da loja faria os guardas verem de parede
-				-- a parede, e o furtivo ficava impossivel.
-				local diagonal = math.sqrt(60 * 60 + 40 * 40)
-				t.expect(Config.visao.distancia < diagonal * 1.5).toBeTruthy()
+			end)
+
+			t.it("os guardas nao saturam a loja de visao", function()
+				--[[
+					A invariante mais importante deste ficheiro, a par da do saque.
+
+					O cone de um guarda cobre (angulo/360) * pi * r². Se a soma dos
+					cones se aproximar da area da loja, nao existe rota furtiva
+					possivel e o assalto fica impossivel -- sem que nenhum teste de
+					logica se queixe.
+
+					Foi exactamente o que aconteceu: com distancia = 40 a cobertura
+					era de 157% e os guardas apanhavam o jogador em 17 a 45
+					segundos, de forma inescapavel. A versao anterior deste teste
+					so verificava "distancia < diagonal * 1.5", folgado o
+					suficiente para nao notar.
+
+					As medidas da loja estao duplicadas do MapBuilder. Vale a pena:
+					ter esta conta aqui apanha o problema em 60ms, em vez de numa
+					sessao de Studio.
+				]]
+				local areaDaLoja = 60 * 40
+				local coneDeUmGuarda = (Config.visao.angulo / 360)
+					* math.pi
+					* Config.visao.distancia
+					* Config.visao.distancia
+				local cobertura = coneDeUmGuarda * Config.guardas.quantidade / areaDaLoja
+
+				t.expect(cobertura < 0.5).toBeTruthy()
 			end)
 
 			t.it("os tempos sao positivos", function()
