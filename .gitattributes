@@ -1,0 +1,7 @@
+# O stylua.toml usa line_endings = "Unix". Sem isto, o Git converteria para CRLF
+# ao fazer checkout no Windows e o `stylua --check` passaria a falhar logo depois
+# de um clone, sem ninguem ter mexido no codigo.
+* text=auto eol=lf
+
+# Scripts de PowerShell ficam com CRLF, que e o que o Windows espera.
+*.ps1 text eol=crlf
