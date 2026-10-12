@@ -27,12 +27,27 @@ passo a passo.
 - [ ] Alarme — *`AlarmService` feito; falta quem o dispare*
 - [ ] Minijogo do cabo
 - [ ] Broca
-- [ ] Guarda que patrulha
-- [ ] Guarda que vê
+- [x] Guarda que patrulha
+- [x] Guarda que vê
 - [ ] Vagas de polícia
-- [ ] HUD
+- [x] HUD
 
 **Concluída quando:** todas as peças funcionam sozinhas, com a lógica no servidor.
+
+### ✅ Guardas concluídos — 12 de outubro de 2026
+
+`GuardaCore` (45 testes) + `GuardService`. Confirmado no Studio: 3 guardas em
+ronda, barra de suspeição a subir e descer, raycast a bloquear a visão atrás do
+balcão, e o alarme a disparar pelo `AlarmService`. O `BotaoAlarmeTeste` saiu.
+
+Os guardas vigiam em `Furtivo` **e** em `Fuga` — ser visto a caminho da carrinha
+tira o bónus furtivo sem rebobinar o estado.
+
+**Equilíbrio, que falhou à primeira:** com `visao.distancia = 40`, os três cones
+cobriam **157% da área da loja** e o assalto era impossível (apanhado em 17 a 45
+segundos). Baixado para 20 (39% de cobertura). A invariante em
+`tests/Config.spec.luau` fixa agora essa relação — a versão anterior do teste era
+folgada demais para notar.
 
 ### Em curso: a fatia vertical
 
@@ -109,8 +124,41 @@ desbloquear.
 - [ ] Criar produtos e passes
 - [ ] `MarketplaceService` e `ProcessReceipt`
 - [ ] Ligar o kit ao minijogo do cabo
+- [ ] **Disfarce** — consumível para evitar o alarme (ver decisão abaixo)
 
 **Concluída quando:** as compras funcionam em teste e nenhuma é obrigatória.
+
+### Decisão: o "Disfarce", e porque não é um pop-up
+
+**Ideia original:** quando um guarda te vê durante a fuga e perdes o bónus
+furtivo, oferecer *"paga X para não perderes o bónus"*.
+
+**Rejeitada nessa forma.** É literalmente o que a secção 9 do documento manda
+evitar:
+
+> muitos jogadores são crianças, por isso nada de temporizadores falsos nem
+> **pop-ups de compra a cada falhanço**
+
+Uma oferta de pagamento no momento da perda, com pressão de tempo porque estás a
+fugir, é um padrão escuro. Num público com crianças atrai queixas de pais e
+atenção regulatória, e é má fama para o jogo.
+
+**Forma aprovada** — o mesmo modelo do Kit de emergência que o documento já
+prevê:
+
+- Um consumível (`Disfarce`) que o jogador **leva para o assalto**
+- Comprado **antes**, no esconderijo: dinheiro do jogo **ou** Robux
+- **Também se ganha a jogar**, como o documento exige
+- Usado com uma tecla, por decisão do jogador: limpa a suspeição de quem o está
+  a notar e evita o alarme uma vez
+
+A diferença que importa: é uma **decisão tática tomada com calma**, não uma
+compra por impulso num momento de frustração. Monetiza o mesmo momento sem o
+padrão escuro.
+
+Implementar a mecânica (perfil, loja com dinheiro do jogo, tecla, ligação ao
+`GuardaCore`) antes do `MarketplaceService` — assim descobrimos se é divertido
+antes de montar pagamentos.
 
 ## Fase 6 — Lançamento (contínuo)
 
