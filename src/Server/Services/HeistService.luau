@@ -82,6 +82,9 @@ local function enviarHUD(jogador: Player)
 		sacosMinimos = Config.minimoSacosParaFuga,
 		fimDoTemporizador = fimDoTemporizador,
 		dinheiro = if perfil then perfil.dinheiro else 0,
+		-- Necessario porque o alarme pode tocar DURANTE a Fuga sem mudar o
+		-- estado. Sem isto o jogador perdia o bonus furtivo sem saber porque.
+		houveAlarme = not core:foiFurtivo(),
 	})
 end
 
@@ -211,9 +214,22 @@ function HeistService.comecarAssalto(): boolean
 	return ok
 end
 
--- Chamado pelo AlarmService, a unica porta de entrada do alarme.
+--[[
+	Chamado pelo AlarmService, a unica porta de entrada do alarme.
+
+	Em Furtivo ha mudanca de estado, e o ouvinte do core ja envia o HUD. Em
+	Fuga nao ha: o alarme marca-se mas o estado continua Fuga, por isso temos de
+	enviar o HUD a mao, senao o jogador perdia o bonus furtivo em silencio.
+]]
 function HeistService.dispararAlarme(motivo: string): boolean
-	return core:dispararAlarme(motivo)
+	local estadoAntes = core:estadoAtual()
+	local disparou = core:dispararAlarme(motivo)
+
+	if disparou and core:estadoAtual() == estadoAntes then
+		enviarHUDaTodos()
+	end
+
+	return disparou
 end
 
 -- Chamado pelo LootService quando um saco chega a carrinha.

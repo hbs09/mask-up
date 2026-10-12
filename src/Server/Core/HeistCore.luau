@@ -184,22 +184,43 @@ function HeistCore.transitar(self: Core, novo: any): (boolean, string?)
 end
 
 --[[
-	A unica forma de ir para Alarme. Devolve false se o alarme nao se aplica
-	(ja esta a tocar, ou o assalto nao esta em Furtivo) -- o documento pede
-	exatamente isto, para tres guardas a verem o mesmo jogador nao dispararem o
-	alarme tres vezes.
+	A unica forma de levantar o alarme.
+
+	Em Furtivo: muda o estado para Alarme.
+
+	Em Fuga: marca o alarme mas NAO muda o estado. Ser visto a fugir tem de
+	contar -- perde-se o bonus furtivo, e na Fase 1 trara policia -- mas mandar
+	o assalto de volta para Alarme rebobinava o jogador: perdia o temporizador e
+	a carrinha, e ficava num estado sem saida. Os dois estados querem dizer
+	coisas diferentes: Alarme e "deu para o torto e ainda estas la dentro",
+	Fuga e "a carrinha chegou, sai".
+
+	Devolve false quando nao ha nada a fazer: ja esta a tocar, ou o assalto nao
+	esta a decorrer. E por isso que tres guardas a verem o mesmo jogador dao um
+	alarme, nao tres.
 ]]
 function HeistCore.dispararAlarme(self: Core, motivo: string): boolean
-	if self.estado ~= self.estados.Furtivo then
+	-- Ja tocou: nao ha nada a acrescentar, e o motivo do primeiro e o que conta.
+	if self.houveAlarme then
 		return false
 	end
 
-	local ok = self:transitar(self.estados.Alarme)
-	if ok then
-		self.motivoAlarme = motivo
+	if self.estado == self.estados.Furtivo then
+		local ok = self:transitar(self.estados.Alarme)
+		if ok then
+			self.motivoAlarme = motivo
+		end
+		return ok
 	end
 
-	return ok
+	if self.estado == self.estados.Fuga then
+		self.houveAlarme = true
+		self.motivoAlarme = motivo
+		return true
+	end
+
+	-- Lobby ou Fim: o assalto nao esta a decorrer.
+	return false
 end
 
 -- O motivo do PRIMEIRO disparo, que e o que interessa para perceber o que

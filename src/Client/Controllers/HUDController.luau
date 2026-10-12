@@ -180,10 +180,21 @@ local function aoAtualizarHUD(dados: {
 	sacosMinimos: number,
 	fimDoTemporizador: number?,
 	dinheiro: number,
+	houveAlarme: boolean?,
 })
 	fimDoTemporizador = dados.fimDoTemporizador
 
 	mostrarEstado(dados.estado)
+
+	--[[
+		Durante a Fuga o alarme pode tocar sem o estado mudar -- um guarda que te
+		ve a caminho da carrinha. O estado continua FUGA, por isso sem este aviso
+		o bonus furtivo desaparecia do pagamento sem explicacao.
+	]]
+	if dados.estado == HeistState.Fuga and dados.houveAlarme then
+		rotuloLegenda.Text = "VISTO! sem bonus furtivo - corre para a carrinha"
+		rotuloEstado.TextColor3 = CORES_ESTADO[HeistState.Alarme]
+	end
 
 	rotuloSacos.Text =
 		string.format("Sacos entregues: %d / %d", dados.sacosEntregues, dados.sacosMinimos)

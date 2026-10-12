@@ -202,11 +202,56 @@ return function(t)
 				t.expect(core:estadoAtual()).toBe(ESTADOS.Lobby)
 			end)
 
-			t.it("nao dispara durante a Fuga (o alarme ja nao muda nada)", function()
+			t.it("dispara durante a Fuga, mas SEM mudar de estado", function()
+				--[[
+					Ser visto a fugir tem de contar. Mas mandar o assalto de volta
+					para Alarme rebobinava o jogador: perdia o temporizador e a
+					carrinha, e ficava num estado sem saida.
+
+					Por isso o alarme dispara (perde-se o bonus furtivo) e o estado
+					continua Fuga, porque a carrinha esta la e o relogio corre.
+				]]
 				local core = levarAte(novoCore(), ESTADOS.Fuga)
 
-				t.expect(core:dispararAlarme("teste")).toBe(false)
+				t.expect(core:dispararAlarme("guarda_viu")).toBe(true)
 				t.expect(core:estadoAtual()).toBe(ESTADOS.Fuga)
+				t.expect(core:foiFurtivo()).toBe(false)
+			end)
+
+			t.it("na Fuga tambem so conta uma vez", function()
+				local core = levarAte(novoCore(), ESTADOS.Fuga)
+
+				t.expect(core:dispararAlarme("guarda_viu")).toBe(true)
+				t.expect(core:dispararAlarme("outro_guarda")).toBe(false)
+			end)
+
+			t.it("quem ja vinha de Alarme nao volta a disparar na Fuga", function()
+				local core = levarAte(novoCore(), ESTADOS.Alarme)
+				core:transitar(ESTADOS.Fuga)
+
+				t.expect(core:dispararAlarme("guarda_viu")).toBe(false)
+				t.expect(core:motivoDoAlarme()).toBe("teste") -- o do levarAte
+			end)
+
+			t.it("ser visto na Fuga tira o bonus furtivo do pagamento", function()
+				local core = levarAte(novoCore(), ESTADOS.Furtivo)
+				core:registarSacoEntregue(1, "grande") -- 5000
+				core:transitar(ESTADOS.Fuga)
+
+				-- Ate aqui era furtivo e o bonus aplicava-se.
+				t.expect(core:calcularPagamento().dinheiroPorJogador).toBe(7500)
+
+				core:dispararAlarme("guarda_viu")
+
+				t.expect(core:calcularPagamento().dinheiroPorJogador).toBe(5000)
+				t.expect(core:calcularPagamento().bonusFurtivoAplicado).toBe(false)
+			end)
+
+			t.it("nao dispara no Fim (o assalto ja acabou)", function()
+				local core = levarAte(novoCore(), ESTADOS.Fim)
+
+				t.expect(core:dispararAlarme("teste")).toBe(false)
+				t.expect(core:foiFurtivo()).toBe(true)
 			end)
 
 			t.it("guarda o motivo do primeiro disparo, para os logs", function()

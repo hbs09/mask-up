@@ -309,10 +309,22 @@ local function temLinhaDeVista(guarda: Guarda, jogador: Player, posAlvo: Vector3
 	return resultado == nil
 end
 
+--[[
+	Estados em que os guardas vigiam.
+
+	A Fuga esta incluida de proposito: ser visto a caminho da carrinha tem de
+	contar, senao a parte mais tensa do assalto -- carregar o saque devagar com
+	os guardas ainda de pe -- passava a ser uma caminhada sem risco. O
+	HeistCore trata disso sem rebobinar o estado: marca o alarme, tira o bonus
+	furtivo, e deixa o temporizador da fuga a correr.
+
+	Fora destes dois nao ha nada a descobrir: no Lobby e no Fim o assalto nao
+	esta a decorrer, e no Alarme o alarme ja toca.
+]]
+local ESTADOS_VIGIADOS = { HeistState.Furtivo, HeistState.Fuga }
+
 local function atualizarVisao(dt: number)
-	-- Fora do Furtivo os guardas nao tem nada a descobrir: ou o assalto ainda
-	-- nao comecou, ou o alarme ja toca.
-	local emFurtivo = deps.heist.estadoAtual() == HeistState.Furtivo
+	local aVigiar = table.find(ESTADOS_VIGIADOS, deps.heist.estadoAtual()) ~= nil
 	local jogadores = Players:GetPlayers()
 
 	for _, guarda in guardas do
@@ -323,7 +335,7 @@ local function atualizarVisao(dt: number)
 			local raiz = raizDe(jogador)
 			local viu = false
 
-			if emFurtivo and raiz and estaVivo(jogador) then
+			if aVigiar and raiz and estaVivo(jogador) then
 				-- Cone primeiro: e barato. O raycast so para quem ja esta dentro.
 				if core:dentroDoCone(posCabeca, olharPara, paraPosicao(raiz.Position)) then
 					viu = temLinhaDeVista(guarda, jogador, raiz.Position)
