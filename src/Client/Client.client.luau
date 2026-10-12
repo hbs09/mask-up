@@ -10,10 +10,16 @@
 	de que a decisao esta no lado errado.
 ]]
 
-local Controllers = script.Parent.Controllers
+--[[
+	WaitForChild e nao `script.Parent.Controllers` direto: em runtime, o conteudo
+	de StarterPlayerScripts e COPIADO para Players.<nome>.PlayerScripts, e este
+	LocalScript pode arrancar antes de a pasta Controllers chegar. Sem a espera, o
+	erro e "Controllers is not a valid member of PlayerScripts".
+]]
+local Controllers = script.Parent:WaitForChild("Controllers")
 
-local HUDController = require(Controllers.HUDController)
-local InteractController = require(Controllers.InteractController)
+local HUDController = require(Controllers:WaitForChild("HUDController"))
+local InteractController = require(Controllers:WaitForChild("InteractController"))
 
 HUDController.init()
 InteractController.init()

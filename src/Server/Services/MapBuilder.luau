@@ -72,8 +72,12 @@ local function criarParte(props: PropsParte): Part
 	parte.Position = props.posicao
 	parte.Color = props.cor
 	parte.Anchored = true -- sem isto o mapa cai assim que o jogo arranca
-	parte.TopSurface = Enum.NormalId.Top
-	parte.BottomSurface = Enum.NormalId.Bottom
+
+	-- Enum.SurfaceType, nao Enum.NormalId: sao dois enums diferentes e o Roblox
+	-- rejeita a atribuicao em runtime. Smooth tira os pinos e reentrancias que
+	-- as Parts tem por omissao.
+	parte.TopSurface = Enum.SurfaceType.Smooth
+	parte.BottomSurface = Enum.SurfaceType.Smooth
 	parte.Transparency = props.transparencia or 0
 	parte.CanCollide = if props.colide == nil then true else props.colide
 	parte.Material = props.material or Enum.Material.SmoothPlastic
