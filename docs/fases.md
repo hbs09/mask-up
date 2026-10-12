@@ -46,14 +46,29 @@ início ao fim — a regra de ouro nº5 ("pequeno e completo antes de grande"):
 - [x] `AlarmService` — porta de entrada única
 - [x] `HeistCore` — transições, contagem de sacos, pagamento (51 testes)
 - [x] `LootCore` — posse de sacos, limite, WalkSpeed, entrega (34 testes)
-- [ ] `MapBuilder` — joalharia de teste gerada por código
-- [ ] `HeistService` e `LootService` — adaptadores sobre o core
-- [ ] `HUDController` e `InteractController`
-- [ ] Jogar `Lobby → Furtivo → saco → carrinha → Fuga → Fim` com 2 jogadores
+- [x] `MapBuilder` — joalharia de teste gerada por código
+- [x] `HeistService` e `LootService` — adaptadores sobre o core
+- [x] `HUDController` e `InteractController`
+- [x] Jogar `Lobby → Furtivo → saco → carrinha → Fuga → Fim` com 2 jogadores
 
-**Toda a lógica do assalto está escrita e testada.** O que falta é tradução para
-o mundo do Roblox: criar Parts, ligar ProximityPrompts, enviar Remotes e desenhar
-o HUD. Nenhuma regra de jogo nova.
+### ✅ Fatia vertical concluída — 12 de outubro de 2026
+
+Confirmada no Studio com 2 jogadores. Do log do servidor:
+
+```
+Lobby -> Furtivo              15s depois do arranque
+Furtivo -> Fuga               2 sacos entregues
+Fuga -> Fim                   exactamente 60s (tempos.fuga)
+fim do assalto: 2 sacos, 25000 bruto, 31250 por jogador, furtivo=true
+Fim -> Lobby                  exactamente 10s (tempos.fim)
+```
+
+O pagamento confere: 5000 (montra) + 20000 (cofre) = 25000, × 1.25 de bónus
+furtivo = 31250.
+
+A validação de segurança também ficou provada em runtime, e não apenas nos
+testes — o botão do alarme premido durante o `Lobby` foi recusado com motivo
+`estado`, funcionou em `Furtivo`, e voltou a ser recusado já em `Alarme`.
 
 ## Fase 2 — Primeiro assalto completo (3 a 4 semanas)
 

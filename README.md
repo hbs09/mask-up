@@ -26,8 +26,12 @@ roteiro em [docs/fases.md](docs/fases.md).
 
 Fase 1 a arrancar. O que já existe e está testado:
 
-**A lógica do assalto está completa e testada. Faltam os adaptadores que a ligam
-ao Roblox.**
+**A fatia vertical está jogável.** Confirmado no Studio com 2 jogadores:
+`Lobby → Furtivo → apanhar saco → entregar na carrinha → Fuga → Fim com
+pagamento → Lobby`, mais o caminho do alarme. Ver [docs/fases.md](docs/fases.md).
+
+Faltam as mecânicas da Fase 1 (guardas, câmaras, broca, minijogo do cabo,
+polícia).
 
 | Módulo | Estado |
 |---|---|
