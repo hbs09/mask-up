@@ -1,0 +1,17 @@
+# Luau puro, SEM os globais do Roblox -- e de proposito.
+#
+# Os modulos em src/Server/Core/ e os testes nao podem tocar em `game`,
+# `Instance`, `Vector3` nem em nenhum servico do Roblox: e isso que lhes permite
+# correr em Lune em milissegundos. Com std = "luau", qualquer uso acidental de um
+# global do Roblox aparece aqui como "undefined variable", por isso o linter
+# passa a aplicar a regra de pureza em vez de ela ficar so no comentario.
+#
+# Os adaptadores (src/Shared, src/Server/Services, src/Client) precisam dos
+# globais do Roblox e sao verificados com selene-roblox.toml. Ver scripts/verificar.ps1.
+#
+# Nota: `selene generate-roblox-std` nao funciona nesta maquina (o Norton 360
+# intercepta HTTPS e o selene, sendo Rust, rejeita o certificado). Por isso o
+# std do Roblox e declarado a mao em roblox-minimo.toml.
+std = "luau"
+
+exclude = ["tools/**"]

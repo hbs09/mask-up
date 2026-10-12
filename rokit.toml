@@ -1,0 +1,14 @@
+# Ferramentas do projeto, com versoes fixadas.
+#
+# NOTA: o `rokit install` nao funciona nesta maquina porque o Norton 360 faz
+# inspecao de HTTPS e o Rokit (Rust/rustls) rejeita o certificado injetado.
+# Usar `scripts/instalar-ferramentas.ps1`, que descarrega estas mesmas versoes
+# via PowerShell para .\tools\. Ver o comentario no topo desse script.
+#
+# Este ficheiro continua a ser a fonte de verdade das versoes.
+
+[tools]
+rojo = "rojo-rbx/rojo@7.7.1"
+lune = "lune-org/lune@0.11.0"
+stylua = "JohnnyMorganz/StyLua@2.6.0"
+selene = "Kampfkarren/selene@0.32.0"

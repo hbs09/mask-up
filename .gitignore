@@ -1,0 +1,11 @@
+# Binarios das ferramentas: reinstalaveis com scripts/instalar-ferramentas.ps1
+tools/
+
+# Places geradas pelo `rojo build` (artefactos, nao fonte)
+*.rbxl
+*.rbxlx
+*.rbxl.lock
+*.rbxlx.lock
+
+# Gerado pelo `rojo sourcemap`, para o Luau LSP
+sourcemap.json
