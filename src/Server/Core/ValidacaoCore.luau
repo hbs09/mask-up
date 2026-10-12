@@ -18,9 +18,11 @@ ValidacaoCore.__index = ValidacaoCore
 
 export type Posicao = { x: number, y: number, z: number }
 
+-- Corresponde a Config.interacao, para o adaptador poder fazer
+-- `ValidacaoCore.novo(Config.interacao)` sem traduzir nomes de campos.
 export type Config = {
-	distanciaMaximaInteracao: number,
-	cooldownInteracao: number,
+	distanciaMaxima: number,
+	cooldown: number,
 }
 
 -- O motivo e um codigo estavel (nao uma frase), para os testes e os logs do
@@ -53,8 +55,8 @@ end
 
 function ValidacaoCore.novo(config: Config): Validador
 	return setmetatable({
-		distanciaMaxima = config.distanciaMaximaInteracao,
-		cooldown = config.cooldownInteracao,
+		distanciaMaxima = config.distanciaMaxima,
+		cooldown = config.cooldown,
 		ultimaAcao = {},
 	}, ValidacaoCore)
 end

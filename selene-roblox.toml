@@ -1,0 +1,10 @@
+# Configuracao do selene para os ADAPTADORES: src/Shared, src/Server/Services,
+# src/Server/Main.server.luau e src/Client.
+#
+# Estes ficheiros precisam dos globais do Roblox (game, Instance, task, ...),
+# ao contrario do core puro, que e verificado com selene.toml e std = "luau".
+#
+# Usado por scripts/verificar.ps1 com --config selene-roblox.toml.
+std = "roblox-minimo"
+
+exclude = ["tools/**"]

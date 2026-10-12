@@ -1,0 +1,133 @@
+# Biblioteca padrao minima do Roblox para o selene.
+#
+# Escrita a mao porque o `selene generate-roblox-std` nao funciona nesta
+# maquina: descarrega o API dump da Roblox e o Norton 360 intercepta HTTPS, o
+# que o selene (Rust) rejeita. Ver o comentario em selene.toml.
+#
+# Cada global tem `any = true`, o que significa "este global existe, nao
+# verifiques os membros dele". E um compromisso deliberado:
+#
+#   - O que ISTO apanha: globais que nao existem. Um `Instanec.new` ou um
+#     `Vector4` passam a ser erro de lint, e o core puro continua proibido de
+#     tocar em qualquer coisa desta lista (ver selene.toml).
+#   - O que NAO apanha: membros errados, como `Instance.create` em vez de
+#     `Instance.new`. Isso e trabalho do Luau LSP no editor, que tem as
+#     definicoes de tipos completas da Roblox -- uma ferramenta melhor para a
+#     tarefa do que um std escrito a mao que ficaria desatualizado.
+#
+# A lista e tambem documentacao: e a superficie do Roblox que este projeto toca.
+# Se um ficheiro precisar de um global que nao esta aqui, vale a pena perguntar
+# se devia mesmo precisar dele -- ou se aquela logica pertence ao core puro.
+#
+# Para acrescentar um global novo: copia um bloco de duas linhas e muda o nome.
+
+[selene]
+base = "luau"
+name = "roblox-minimo"
+
+# --- Raizes da arvore ---
+[game]
+any = true
+
+[workspace]
+any = true
+
+[script]
+any = true
+
+# --- Tipos de dados ---
+[Instance]
+any = true
+
+[Vector3]
+any = true
+
+[Vector2]
+any = true
+
+[CFrame]
+any = true
+
+[Color3]
+any = true
+
+[BrickColor]
+any = true
+
+[UDim]
+any = true
+
+[UDim2]
+any = true
+
+[Enum]
+any = true
+
+[Random]
+any = true
+
+[TweenInfo]
+any = true
+
+[NumberRange]
+any = true
+
+[ColorSequence]
+any = true
+
+[NumberSequence]
+any = true
+
+[Rect]
+any = true
+
+[Ray]
+any = true
+
+[RaycastParams]
+any = true
+
+[OverlapParams]
+any = true
+
+[DateTime]
+any = true
+
+[PhysicalProperties]
+any = true
+
+# --- Funcoes e tabelas globais ---
+[task]
+any = true
+
+[debug]
+any = true
+
+[utf8]
+any = true
+
+[warn]
+args = [{ type = "..." }]
+
+[typeof]
+args = [{ type = "any" }]
+
+[tick]
+args = []
+
+[time]
+args = []
+
+[elapsedTime]
+args = []
+
+# Herdados do Lua antigo. Existem, mas no codigo novo usa-se `task.wait`,
+# `task.spawn` e `task.delay`, que nao engolem erros silenciosamente.
+[wait]
+args = [{ type = "number", required = false }]
+
+[spawn]
+args = [{ type = "function" }]
+
+[delay]
+args = [{ type = "number" }, { type = "function" }]

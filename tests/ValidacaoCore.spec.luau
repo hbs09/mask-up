@@ -17,8 +17,8 @@ local COOLDOWN = 0.5
 
 local function novoValidador()
 	return ValidacaoCore.novo({
-		distanciaMaximaInteracao = DISTANCIA_MAXIMA,
-		cooldownInteracao = COOLDOWN,
+		distanciaMaxima = DISTANCIA_MAXIMA,
+		cooldown = COOLDOWN,
 	})
 end
 

@@ -1,0 +1,75 @@
+name: Verificar
+
+# As mesmas verificacoes que o scripts/verificar.ps1 corre localmente, mas em
+# cada push e pull request. Com TDD isto vale muito: apanha o que se partiu sem
+# dependeres de te lembrares de correr o script antes de fazer commit.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Aqui o Rokit funciona normalmente: o problema de certificados que obriga
+      # a usar scripts/instalar-ferramentas.ps1 na maquina local e causado pelo
+      # Norton 360 a interceptar HTTPS, e nao existe no Linux do CI.
+      #
+      # Instalamos pelo script oficial em vez de uma action de terceiros para
+      # nao acrescentar uma dependencia que teria de ser auditada e mantida.
+      - name: Instalar o Rokit
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+
+      # O `rokit install` recusa-se a instalar ferramentas que nao estejam
+      # marcadas como confiaveis, e o prompt interativo nao funciona no CI.
+      # O --no-trust-check existe para este caso ("recommended to only use this
+      # on CI machines", diz a ajuda do proprio rokit).
+      - name: Instalar as ferramentas do rokit.toml
+        run: rokit install --no-trust-check
+
+      - name: Versoes
+        run: |
+          rojo --version
+          lune --version
+          stylua --version
+          selene --version || true   # o `selene --version` sai com codigo -1 mesmo quando funciona
+
+      - name: Formatacao (stylua)
+        run: stylua --check src tests .lune
+
+      # Sem os globais do Roblox, de proposito: isto garante que o core puro
+      # continua puro e portanto testavel fora do Studio. Ver selene.toml.
+      - name: Lint do core puro
+        run: selene src/Server/Core tests .lune
+
+      - name: Lint dos adaptadores Roblox
+        run: selene --config selene-roblox.toml src/Shared src/Server/Services src/Server/Main.server.luau src/Client
+
+      # Antes de confiar nos testes, confirmar que o harness deteta falhas.
+      - name: Auto-teste do harness
+        run: lune run .lune/autoteste-harness.luau
+
+      - name: Testes
+        run: lune run .lune/tests.luau
+
+      # Falha se o default.project.json referir ficheiros que nao existem, ou se
+      # a arvore nao puder ser construida.
+      - name: Construir a place
+        run: rojo build --output assaltos.rbxlx
+
+      # Permite descarregar a place construida para abrir no Studio, util para
+      # confirmar um PR sem ter o projeto montado localmente.
+      - name: Guardar a place como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: place-assaltos
+          path: assaltos.rbxlx
+          retention-days: 14

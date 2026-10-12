@@ -1,0 +1,15 @@
+{
+	// O VS Code sugere estas quando abrires o projeto.
+	"recommendations": [
+		// Tipos, autocompletar e erros de Luau enquanto escreves. A mais
+		// importante das quatro.
+		"johnnymorganz.luau-lsp",
+
+		// Formatador. Mesma versao que o scripts/verificar.ps1 usa, por isso o
+		// que guardas no editor passa o --check.
+		"johnnymorganz.stylua",
+
+		// Linter, com as duas configuracoes do projeto (core puro e adaptadores).
+		"kampfkarren.selene-vscode"
+	]
+}

@@ -1,0 +1,40 @@
+{
+	// As ferramentas vivem em ./tools (ver scripts/instalar-ferramentas.ps1) e nao
+	// no PATH do sistema, por isso as extensoes tem de ser apontadas para la.
+	"luau-lsp.sourcemap.rojoPath": "./tools/rojo.exe",
+	"stylua.styluaPath": "./tools/stylua.exe",
+	"selene.selenePath": "./tools/selene.exe",
+
+	// O sourcemap e o que da ao editor os tipos reais da arvore do jogo: sem ele,
+	// `game.ReplicatedStorage.Shared.Config` nao e reconhecido. E regenerado
+	// automaticamente a partir do default.project.json.
+	"luau-lsp.sourcemap.enabled": true,
+	"luau-lsp.sourcemap.autogenerate": true,
+	"luau-lsp.sourcemap.rojoProjectFile": "default.project.json",
+
+	"luau-lsp.platform.type": "roblox",
+	"luau-lsp.types.roblox": true,
+
+	// Avisa sobre variaveis nao usadas e tipos errados enquanto escreves, que e
+	// mais rapido do que descobrir no selene depois.
+	"luau-lsp.diagnostics.strictDatamodelTypes": false,
+
+	"[luau]": {
+		"editor.defaultFormatter": "JohnnyMorganz.stylua",
+		"editor.formatOnSave": true
+	},
+
+	// O stylua.toml usa line_endings = "Unix" e o .gitattributes forca LF; sem
+	// isto o VS Code no Windows escreveria CRLF e o `stylua --check` falhava.
+	"files.eol": "\n",
+
+	"files.exclude": {
+		"tools/": true
+	},
+
+	// Os ficheiros .luau sao a extensao moderna; sem isto o VS Code trata-os
+	// como texto simples.
+	"files.associations": {
+		"*.luau": "luau"
+	}
+}
