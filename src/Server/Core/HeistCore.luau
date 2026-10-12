@@ -133,10 +133,17 @@ end
 
 local function avisarOuvintes(self: Core, novo: string, anterior: string)
 	for _, ouvinte in self.ouvintes do
-		-- pcall de proposito: se o HUD de um jogador tiver um bug, o assalto tem
-		-- de continuar para os outros em vez de parar a meio de uma transicao.
-		local ok, erro = pcall(ouvinte, novo, anterior)
-		if not ok then
+		--[[
+			Protegido de proposito: se o HUD de um jogador tiver um bug, o assalto
+			tem de continuar para os outros em vez de parar a meio de uma
+			transicao.
+
+			xpcall e nao pcall porque o ouvinte nao devolve nada, e nesse caso o
+			tipo do pcall e so `(boolean)` -- ler um segundo valor com a mensagem
+			de erro era um erro de aridade. O handler do xpcall recebe o erro
+			diretamente.
+		]]
+		xpcall(ouvinte, function(erro)
 			self.avisar(
 				string.format(
 					"[HeistCore] ouvinte falhou em %s->%s: %s",
@@ -145,7 +152,7 @@ local function avisarOuvintes(self: Core, novo: string, anterior: string)
 					tostring(erro)
 				)
 			)
-		end
+		end, novo, anterior)
 	end
 end
 

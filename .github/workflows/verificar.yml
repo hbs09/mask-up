@@ -57,12 +57,35 @@ jobs:
       - name: Lint dos adaptadores Roblox
         run: selene --config selene-roblox.toml src/Shared src/Server/Services src/Server/Main.server.luau src/Client
 
+      # Apanha erros de tipos da API do Roblox, que o selene nao ve: o
+      # roblox-minimo.toml declara os globais com `any = true`, logo confirma que
+      # `Enum` existe mas nao valida os membros. Foi assim que um
+      # `TopSurface = Enum.NormalId.Top` nos custou uma ida ao Studio.
+      - name: Definicoes de tipos do Roblox
+        run: curl -fsSL -o globalTypes.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.d.luau
+
+      - name: Verificacao de tipos
+        run: |
+          rojo sourcemap default.project.json --output sourcemap.json
+          luau-lsp analyze \
+            --sourcemap=sourcemap.json \
+            --definitions=globalTypes.d.luau \
+            --base-luaurc=.luaurc \
+            --platform=roblox \
+            src
+
       # Antes de confiar nos testes, confirmar que o harness deteta falhas.
       - name: Auto-teste do harness
         run: lune run .lune/autoteste-harness.luau
 
       - name: Testes
         run: lune run .lune/tests.luau
+
+      # Confere a aritmetica do mapa: nada a flutuar no vazio, percurso continuo
+      # do lobby ate a carrinha. Existe porque o lobby e a loja ja estiveram em
+      # plataformas separadas, com 50 studs de queda mortal entre as duas.
+      - name: Geometria do mapa
+        run: lune run tests/_geometria.luau
 
       # Falha se o default.project.json referir ficheiros que nao existem, ou se
       # a arvore nao puder ser construida.

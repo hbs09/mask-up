@@ -61,9 +61,50 @@ if ($robloxExistente) {
     Etapa "selene (adaptadores Roblox)" { selene --config selene-roblox.toml $robloxExistente }
 }
 
+<#
+    Verificacao de tipos com as definicoes reais da API da Roblox.
+
+    Isto e o que apanha erros que nem o selene nem os testes apanham, porque sao
+    de tipos da API: `TopSurface = Enum.NormalId.Top` quando se espera
+    Enum.SurfaceType, `Instance.create` em vez de `Instance.new`, uma propriedade
+    que nao existe. Esse primeiro erro custou-nos uma ida ao Studio -- o selene
+    nao o apanha porque o roblox-minimo.toml declara os globais com `any = true`.
+
+    Precisa do sourcemap, que diz ao verificador como e a arvore do jogo
+    (ReplicatedStorage.Shared.Config e um ModuleScript, etc.).
+
+    So corre em src/: os ficheiros de tests/ e .lune/ usam os modulos internos
+    do Lune (@lune/fs e companhia), que exigiriam definicoes de tipos separadas.
+    Esses ja sao verificados de forma mais forte -- a correr.
+#>
+$definicoes = Join-Path $ferramentas "globalTypes.d.luau"
+if ((Test-Path $definicoes) -and (Test-Path "src")) {
+    Etapa "verificacao de tipos (luau-lsp)" {
+        rojo sourcemap default.project.json --output sourcemap.json
+        if ($LASTEXITCODE -ne 0) { return }
+
+        # O luau-lsp escreve linhas INFO/WARN no stderr mesmo quando corre bem.
+        luau-lsp analyze `
+            --sourcemap=sourcemap.json `
+            --definitions="$definicoes" `
+            --base-luaurc=.luaurc `
+            --platform=roblox `
+            src
+    }
+} else {
+    Write-Host ""
+    Write-Host "=== verificacao de tipos (saltada: corre instalar-ferramentas.ps1) ===" -ForegroundColor DarkGray
+}
+
 Etapa "auto-teste do harness" { lune run .lune/autoteste-harness.luau }
 
 Etapa "testes" { lune run .lune/tests.luau }
+
+# Confere a aritmetica do mapa sem abrir o Studio: nada a flutuar no vazio,
+# percurso continuo do lobby a carrinha.
+if (Test-Path "tests/_geometria.luau") {
+    Etapa "geometria do mapa" { lune run tests/_geometria.luau }
+}
 
 # O rojo build so faz sentido quando a arvore do default.project.json estiver
 # toda no disco; antes disso falha por causa de pastas que ainda nao criamos.

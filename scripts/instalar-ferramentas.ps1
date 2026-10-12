@@ -25,7 +25,22 @@ $ferramentas = @(
     @{ nome = "lune";   url = "https://github.com/lune-org/lune/releases/download/v0.11.0/lune-0.11.0-windows-x86_64.zip" }
     @{ nome = "stylua"; url = "https://github.com/JohnnyMorganz/StyLua/releases/download/v2.6.0/stylua-windows-x86_64.zip" }
     @{ nome = "selene"; url = "https://github.com/Kampfkarren/selene/releases/download/0.32.0/selene-0.32.0-windows.zip" }
+    @{ nome = "luau-lsp"; url = "https://github.com/JohnnyMorganz/luau-lsp/releases/download/1.70.1/luau-lsp-win64.zip" }
 )
+
+#[[
+#    Definicoes de tipos do Roblox, para o `luau-lsp analyze` poder verificar
+#    tipos de API em vez de so sintaxe.
+#
+#    Isto e o que apanha erros como `TopSurface = Enum.NormalId.Top` (espera
+#    Enum.SurfaceType), que o selene nao apanha: o roblox-minimo.toml declara os
+#    globais com `any = true`, logo confirma que `Enum` existe mas nao valida os
+#    membros. Esse bug custou-nos uma ida ao Studio.
+#
+#    Nao e versionado porque e um artefacto gerado que acompanha a versao da API
+#    da Roblox; o CI descarrega-o tambem.
+#]]
+$DEFINICOES_URL = "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.d.luau"
 
 $raiz = Split-Path -Parent $PSScriptRoot
 $destino = Join-Path $raiz "tools"
@@ -54,6 +69,16 @@ foreach ($f in $ferramentas) {
     Move-Item $encontrado.FullName $exe -Force
     Remove-Item $zip, $tmp -Recurse -Force
     Write-Host "[instalado] $($f.nome) -> $exe"
+}
+
+# --- Definicoes de tipos do Roblox ---
+$definicoes = Join-Path $destino "globalTypes.d.luau"
+if (Test-Path $definicoes) {
+    Write-Host "[ja existe] definicoes de tipos do Roblox"
+} else {
+    Write-Host "[download ] definicoes de tipos do Roblox"
+    Invoke-WebRequest -Uri $DEFINICOES_URL -OutFile $definicoes
+    Write-Host "[instalado] globalTypes.d.luau ($([math]::Round((Get-Item $definicoes).Length / 1KB)) KB)"
 }
 
 # --- Plugin do Rojo para o Roblox Studio ---

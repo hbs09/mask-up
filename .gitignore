@@ -7,5 +7,10 @@ tools/
 *.rbxl.lock
 *.rbxlx.lock
 
-# Gerado pelo `rojo sourcemap`, para o Luau LSP
+# Gerado pelo `rojo sourcemap`, para o Luau LSP e o `luau-lsp analyze`
 sourcemap.json
+
+# Definicoes de tipos da API da Roblox, descarregadas por
+# scripts/instalar-ferramentas.ps1. Artefacto gerado que acompanha a versao da
+# API, nao fonte.
+globalTypes.d.luau

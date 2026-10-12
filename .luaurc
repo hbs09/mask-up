@@ -1,0 +1,10 @@
+{
+	// Modo base para ficheiros sem pragma. Os modulos em src/ declaram
+	// `--!strict` no topo e sao verificados em modo estrito; os specs em tests/
+	// sao codigo de teste sem anotacoes e ficariam inundados de avisos.
+	"languageMode": "nonstrict",
+
+	"lint": {
+		"*": true
+	}
+}

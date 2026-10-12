@@ -15,17 +15,23 @@
 	a mais importante, que o assalto tem de ser ganhavel.
 ]]
 
--- O table.freeze e superficial: congelar so o Config deixava Config.sacos e
--- Config.tempos a descoberto, que sao exatamente as tabelas que alguem poderia
--- alterar por engano. Esta funcao desce a arvore toda.
-local function congelarProfundo<T>(tabela: T): T
-	for _, valor in tabela :: any do
+--[[
+	O table.freeze e superficial: congelar so o Config deixava Config.sacos e
+	Config.tempos a descoberto, que sao exatamente as tabelas que alguem poderia
+	alterar por engano. Esta funcao desce a arvore toda.
+
+	Congela no lugar em vez de devolver a tabela: uma versao generica
+	`<T>(tabela: T): T` nao passa o verificador de tipos, porque o table.freeze
+	devolve um tipo selado que nao se relaciona com o T de entrada.
+]]
+local function congelarProfundo(tabela: { [any]: any })
+	for _, valor in tabela do
 		if type(valor) == "table" then
 			congelarProfundo(valor)
 		end
 	end
 
-	return table.freeze(tabela :: any)
+	table.freeze(tabela)
 end
 
 local Config = {
@@ -86,4 +92,6 @@ local Config = {
 	},
 }
 
-return congelarProfundo(Config)
+congelarProfundo(Config)
+
+return Config

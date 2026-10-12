@@ -12,3 +12,6 @@ rojo = "rojo-rbx/rojo@7.7.1"
 lune = "lune-org/lune@0.11.0"
 stylua = "JohnnyMorganz/StyLua@2.6.0"
 selene = "Kampfkarren/selene@0.32.0"
+# Verificacao de tipos com a API real da Roblox. Apanha o que o selene nao
+# apanha, como atribuir um Enum.NormalId onde se espera um Enum.SurfaceType.
+luau-lsp = "JohnnyMorganz/luau-lsp@1.70.1"
