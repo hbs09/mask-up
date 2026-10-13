@@ -119,33 +119,77 @@ return function(t)
 				t.expect(Config.visao.distancia > 0).toBeTruthy()
 			end)
 
-			t.it("os guardas nao saturam a loja de visao", function()
+			--[[
+				A invariante mais importante deste ficheiro, a par da do saque.
+
+				Um cone cobre (angulo/360) * pi * r². Se a soma dos cones se
+				aproximar da area da loja, nao existe rota furtiva possivel e o
+				assalto fica impossivel -- sem que nenhum teste de logica se queixe.
+
+				Foi exactamente o que aconteceu: com visao.distancia = 40 a
+				cobertura era de 157% e os guardas apanhavam o jogador em 17 a 45
+				segundos, de forma inescapavel. A versao anterior deste teste so
+				verificava "distancia < diagonal * 1.5", folgado o suficiente para
+				nao notar.
+
+				SAO DUAS INVARIANTES, NAO UMA. As cameras desligam-se no painel de
+				seguranca; os guardas nao saem do mapa. Um limite unico tratava as
+				duas ameacas como iguais, e elas nao sao:
+
+				  - guardas sozinhos  -> o chao garantido depois de resolver o
+				                         painel. Tem de ser confortavel.
+				  - tudo ligado       -> o que se enfrenta antes de encontrar o
+				                         esquema. Pode ser apertado, mas possivel.
+
+				Isto nao e afrouxar o limite: e a diferenca entre um obstaculo
+				permanente e um obstaculo com solucao desenhada. Se um dia houver
+				observadores que nao se possam desligar, entram na primeira conta.
+
+				As medidas da loja estao duplicadas do MapBuilder. Vale a pena:
+				ter esta conta aqui apanha o problema em 60ms, em vez de numa
+				sessao de Studio.
+			]]
+			local AREA_DA_LOJA = 60 * 40
+
+			local function cobertura(observadores)
+				local total = 0
+				for _, o in observadores do
+					local cone = (o.angulo / 360) * math.pi * o.distancia * o.distancia
+					total += cone * o.quantos
+				end
+				return total / AREA_DA_LOJA
+			end
+
+			local GUARDAS = {
+				angulo = Config.visao.angulo,
+				distancia = Config.visao.distancia,
+				quantos = Config.guardas.quantidade,
+			}
+			local CAMARAS = {
+				angulo = Config.camaras.angulo,
+				distancia = Config.camaras.distancia,
+				quantos = Config.camaras.quantidade,
+			}
+
+			t.it("os guardas sozinhos deixam a loja confortavel", function()
+				-- O que sobra depois de desligar as cameras. Permanente, por isso
+				-- o limite e apertado.
+				t.expect(cobertura({ GUARDAS }) < 0.5).toBeTruthy()
+			end)
+
+			t.it("com as cameras ligadas e apertado, mas nao impossivel", function()
+				-- O que se enfrenta antes de encontrar o esquema.
+				t.expect(cobertura({ GUARDAS, CAMARAS }) < 0.75).toBeTruthy()
+			end)
+
+			t.it("desligar as cameras tem de valer a pena de forma mensuravel", function()
 				--[[
-					A invariante mais importante deste ficheiro, a par da do saque.
-
-					O cone de um guarda cobre (angulo/360) * pi * r². Se a soma dos
-					cones se aproximar da area da loja, nao existe rota furtiva
-					possivel e o assalto fica impossivel -- sem que nenhum teste de
-					logica se queixe.
-
-					Foi exactamente o que aconteceu: com distancia = 40 a cobertura
-					era de 157% e os guardas apanhavam o jogador em 17 a 45
-					segundos, de forma inescapavel. A versao anterior deste teste
-					so verificava "distancia < diagonal * 1.5", folgado o
-					suficiente para nao notar.
-
-					As medidas da loja estao duplicadas do MapBuilder. Vale a pena:
-					ter esta conta aqui apanha o problema em 60ms, em vez de numa
-					sessao de Studio.
+					Se as cameras cobrissem pouco, o minijogo do cabo era trabalho
+					sem recompensa e ninguem o faria. Exigir que elas acrescentem
+					pelo menos metade do que os guardas cobrem garante que
+					desliga-las se SENTE.
 				]]
-				local areaDaLoja = 60 * 40
-				local coneDeUmGuarda = (Config.visao.angulo / 360)
-					* math.pi
-					* Config.visao.distancia
-					* Config.visao.distancia
-				local cobertura = coneDeUmGuarda * Config.guardas.quantidade / areaDaLoja
-
-				t.expect(cobertura < 0.5).toBeTruthy()
+				t.expect(cobertura({ CAMARAS }) > cobertura({ GUARDAS }) * 0.4).toBeTruthy()
 			end)
 
 			t.it("os tempos sao positivos", function()

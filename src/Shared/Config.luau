@@ -133,12 +133,42 @@ local Config = {
 		mostrarCone = true,
 	},
 
+	--[[
+		Cameras. Passado a GuardaCore.novo() numa instancia PROPRIA: uma camera e
+		um guarda que nao anda, por isso o cone, a barra de suspeicao e a regra
+		de disparar uma vez so vem todos reaproveitados e ja testados.
+
+		Cone mais estreito e alcance maior que um guarda -- e isso que distingue
+		uma camera de uma pessoa.
+	]]
+	camaras = {
+		quantidade = 2, -- secção 8 do documento: 1 a 2
+		angulo = 60, -- mais estreito que o guarda (90)
+		--[[
+			22 e nao 26. Com 26 a cobertura total (guardas + cameras) dava 69%,
+			perto demais do teto de 75% que o Config.spec impoe. Com 22 fica em
+			60%: ainda apertado com as cameras ligadas, com margem para errar.
+
+			Ja escolhi um numero destes sem margem uma vez -- a visao dos guardas
+			a 40 -- e tornou o assalto impossivel.
+		]]
+		distancia = 22, -- ve mais longe que o guarda (20), mas num cone estreito
+		segundosParaDetetar = 2,
+		segundosParaEsquecer = 5, -- uma camera nao se distrai
+		arcoDeVarrimento = 100, -- graus que percorre de um lado ao outro
+		velocidadeDeVarrimento = 20, -- graus por segundo
+	},
+
+	-- Minijogo do cabo. Passado a CaboCore.novo().
+	cabo = {
+		cores = { "vermelho", "azul", "verde", "amarelo" },
+	},
+
 	-- Quantos pontos de saque o MapBuilder cria. O Config.spec usa estes valores
 	-- para garantir que ha saque suficiente para atingir minimoSacosParaFuga.
 	mapa = {
 		montras = 4,
 		cofres = 1,
-		camaras = 2, -- Fase 1
 		civis = 3, -- Fase 1
 	},
 }
