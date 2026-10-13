@@ -15,8 +15,9 @@ assalto.
 A especificação completa está em [docs/especificacao.md](docs/especificacao.md) e o
 roteiro em [docs/fases.md](docs/fases.md).
 
-> **Nome da gangue ainda por decidir.** `The Masked` é uma sugestão de arranque,
-> não uma decisão. Aparece só neste README, por isso mudá-lo não custa nada.
+> **O nome da gangue é escolhido pelo anfitrião do lobby**, não fixado no jogo —
+> cada grupo tem a sua identidade. Entra na Fase 2, com o lobby, e exige o filtro
+> de texto da Roblox. Ver [docs/fases.md](docs/fases.md).
 >
 > Antes de publicares no Roblox, confirma na pesquisa do próprio Roblox que
 > `Mask Up` continua livre. A pesquisa na web não indexa todos os jogos da

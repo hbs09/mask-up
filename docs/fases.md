@@ -11,7 +11,16 @@ critério de conclusão concreto — resiste à tentação de avançar sem ele.
 - [x] Script vs LocalScript; primeiro script (porta com E)
 - [ ] Luau: variáveis, if, ciclos, funções, tabelas, eventos
 - [x] Escolher nome do jogo: **Mask Up**
-- [ ] Escolher nome da gangue (`The Masked` é só uma sugestão de arranque)
+- [x] ~~Escolher nome da gangue~~ → **não é uma decisão, é uma funcionalidade**
+
+> **O nome da gangue é escolhido pelo anfitrião do lobby**, não fixado no jogo.
+>
+> Encaixa no papel que a secção 4 do documento já estabelece — *"o anfitrião
+> escolhe a dificuldade"* — e reforça o cooperativo, que o documento chama o
+> trunfo do jogo. Cada grupo tem a sua identidade em vez de todos pertencerem à
+> mesma gangue inventada por mim.
+>
+> Implementação na Fase 2, com o lobby. Ver `docs/arquitetura.md`.
 
 **Concluída quando:** crias e ligas um script a um objeto sem seguir um tutorial
 passo a passo.
@@ -89,9 +98,33 @@ testes — o botão do alarme premido durante o `Lobby` foi recusado com motivo
 
 - [ ] Mapa da joalharia (a sério, não o gerado por código)
 - [ ] Lobby
+  - [ ] O anfitrião escolhe a dificuldade (secção 4 do documento)
+  - [ ] **O anfitrião escolhe o nome da gangue** (ver abaixo)
 - [ ] Caminhos furtivo e barulhento
 - [ ] Ecrã final
 - [ ] Derrota e reanimar
+
+### Nome da gangue: três partes, não uma
+
+O anfitrião escreve o nome e ele aparece no lobby, no HUD e no ecrã final.
+
+**O filtro não é opcional.** Texto escrito por um jogador e mostrado a outros tem
+de passar por `TextService:FilterStringAsync` **no servidor** antes de ser
+guardado ou enviado. É política da Roblox, e com um público que inclui crianças é
+o tipo de omissão que dá moderação ao jogo.
+
+| Parte | Onde |
+|---|---|
+| Interface, visível só ao anfitrião | `Controllers/` (cliente) |
+| Filtrar e guardar | servidor — nunca confiar no texto que chega |
+| Mostrar no lobby, HUD e ecrã final | `HUDController` |
+
+Por decidir quando se implementar:
+
+- **Quem é o anfitrião?** O primeiro jogador a entrar, ou quem criou o servidor
+  privado? Afeta o que acontece quando ele sai a meio.
+- **O nome persiste?** Guardado no perfil do anfitrião (e o `PerfilCore` ganha um
+  campo) ou só dura a sessão?
 
 **Concluída quando:** 4 amigos jogam do início ao fim sem bugs graves, nos dois
 modos.
