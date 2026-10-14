@@ -148,6 +148,13 @@ return function(t)
 				As medidas da loja estao duplicadas do MapBuilder. Vale a pena:
 				ter esta conta aqui apanha o problema em 60ms, em vez de numa
 				sessao de Studio.
+
+				AVISO PARA A FASE 2. Esta area esta FIXA no codigo e e o tamanho da
+				joalharia gerada pelo MapBuilder. Num mapa real maior, esta
+				invariante passa a dizer que a cobertura esta confortavel quando
+				nao esta -- e um teste que da falsa confianca e pior do que nao ter
+				teste. Quando o mapa real chegar, a area tem de vir do mapa. Esta
+				anotado em docs/fases.md.
 			]]
 			local AREA_DA_LOJA = 60 * 40
 

@@ -97,6 +97,46 @@ testes — o botão do alarme premido durante o `Lobby` foi recusado com motivo
 ## Fase 2 — Primeiro assalto completo (3 a 4 semanas)
 
 - [ ] Mapa da joalharia (a sério, não o gerado por código)
+  - [ ] **Recalibrar a invariante de cobertura** — ver aviso abaixo
+  - [ ] Colocar `Waypoints/` à mão, com rotas que façam sentido no mapa real
+  - [ ] Apagar o `MapBuilder` e o `tests/_geometria.luau`
+
+### ⚠️ A invariante de cobertura vai mentir no mapa novo
+
+`tests/Config.spec.luau` tem a área da loja **fixa no código**:
+
+```luau
+local AREA_DA_LOJA = 60 * 40
+```
+
+É o tamanho da joalharia gerada pelo `MapBuilder`. Num mapa real maior, essa
+invariante passa a dizer que a cobertura está confortável quando não está — e um
+teste que dá falsa confiança é pior do que não ter teste.
+
+Foi esta conta que apanhou o assalto impossível (157% de cobertura), por isso
+não é um detalhe: é o guarda que nos protege de voltar a lá cair.
+
+**Quando o mapa real chegar:** a área tem de vir do mapa, não de um número
+escrito à mão. Opções, por ordem de preferência:
+
+1. Uma Part invisível `Map/AreaJogavel` cujo tamanho o teste lê — mas isso obriga
+   o teste a abrir um ficheiro `.rbxlx`, o que o Lune até sabe fazer
+2. A área declarada no `Config` e verificada contra o mapa num teste de
+   integração no Studio
+3. No mínimo, uma constante no `Config` em vez de literal no teste, para haver um
+   único sítio a mudar
+
+### O que sobrevive à troca de mapa
+
+Útil ter isto claro antes de a Fase 2 começar:
+
+| | Portável? |
+|---|---|
+| `src/Server/Core/` — 1337 linhas, 238 testes | ✅ Intacto. Trabalha com ids, posições e tempo injetado; não sabe que o mapa existe |
+| `Services/` e `Controllers/` | ✅ Procuram tudo **por nome** (`Loot/`, `Waypoints/`, `Guards/`, `EscapeZone/Zona`), não por posição |
+| Modelos, Parts, geometria | ❌ Substituídos pelos modelos a sério |
+| Números do equilíbrio no `Config` | ⚠️ Calibrados para 60×40 — recalibrar |
+| `MapBuilder`, `tests/_geometria.luau` | ❌ Descartáveis por desenho |
 - [ ] Lobby
   - [ ] O anfitrião escolhe a dificuldade (secção 4 do documento)
   - [ ] **O anfitrião escolhe o nome da gangue** (ver abaixo)

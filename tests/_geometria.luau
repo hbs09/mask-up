@@ -127,6 +127,67 @@ for indice = 1, 4 do
 end
 
 print("")
+print("=== cameras dentro da loja e a olhar para dentro ===")
+--[[
+	As posicoes e angulos estao duplicados do CameraService, como as da loja
+	estao do MapBuilder. Vale a pena: uma camera montada dentro de uma parede ou
+	a apontar para fora da loja nao da erro nenhum em runtime -- simplesmente
+	nunca ve ninguem, e isso descobre-se depois de muito tempo a jogar sem nunca
+	ser apanhado por uma.
+]]
+local CAMARAS = {
+	{ nome = "Camera1", x = -26, y = 10, z = -16, angulo = 135 },
+	{ nome = "Camera2", x = 26, y = 10, z = -16, angulo = -135 },
+}
+
+local interiorDaLojaX = faixa(0, LOJA.largura - LOJA.espessuraParede * 2)
+local interiorDaLojaZ = faixa(0, LOJA.profundidade - LOJA.espessuraParede * 2)
+
+for _, c in CAMARAS do
+	verificar(
+		string.format("%s dentro das paredes (X)", c.nome),
+		contido(faixa(c.x, 1.6), interiorDaLojaX, "X")
+	)
+	verificar(
+		string.format("%s dentro das paredes (Z)", c.nome),
+		contido(faixa(c.z, 2.4), interiorDaLojaZ, "Z")
+	)
+	verificar(
+		string.format("%s abaixo do teto", c.nome),
+		c.y + 0.6 <= LOJA.altura,
+		string.format("topo em %g, teto em %g", c.y + 0.6, LOJA.altura)
+	)
+
+	-- Direcao de olhar, igual a do CameraService: (sin, 0, -cos) do angulo.
+	local radianos = math.rad(c.angulo)
+	local dirX = math.sin(radianos)
+	local dirZ = -math.cos(radianos)
+
+	-- Um ponto a meio do alcance tem de cair dentro da loja; se cair fora, a
+	-- camera esta a olhar para uma parede.
+	local alvoX = c.x + dirX * 11
+	local alvoZ = c.z + dirZ * 11
+
+	verificar(
+		string.format("%s olha para dentro da loja", c.nome),
+		math.abs(alvoX) < LOJA.largura / 2 and math.abs(alvoZ) < LOJA.profundidade / 2,
+		string.format("a 11 studs aponta para (%.0f, %.0f)", alvoX, alvoZ)
+	)
+end
+
+verificar(
+	"as duas cameras nao estao no mesmo sitio",
+	math.abs(CAMARAS[1].x - CAMARAS[2].x) > 4 or math.abs(CAMARAS[1].z - CAMARAS[2].z) > 4,
+	"duas cameras sobrepostas cobrem metade do que parecem"
+)
+
+verificar(
+	"as cameras nao ficam dentro do cofre",
+	not (sobrepoem(faixa(CAMARAS[1].x, 1.6), cofreX) and CAMARAS[1].y < 8),
+	"o cofre vai do chao aos 8 studs"
+)
+
+print("")
 if #problemas > 0 then
 	print(string.format("%d problemas de geometria", #problemas))
 	local process = require("@lune/process")

@@ -29,6 +29,7 @@ local MapBuilder = require(Services.MapBuilder)
 local AlarmService = require(Services.AlarmService)
 local LootService = require(Services.LootService)
 local GuardService = require(Services.GuardService)
+local CameraService = require(Services.CameraService)
 local HeistService = require(Services.HeistService)
 
 --[[
@@ -80,6 +81,18 @@ GuardService.init({
 	},
 })
 
+-- As cameras tem exactamente as mesmas dependencias que os guardas: saber o
+-- estado e poder tocar o alarme. E o sinal de que a abstracao esta no sitio
+-- certo -- uma camera e um guarda que nao anda.
+CameraService.init({
+	heist = {
+		estadoAtual = HeistService.estadoAtual,
+	},
+	alarme = {
+		Trigger = AlarmService.Trigger,
+	},
+})
+
 HeistService.init({
 	dados = {
 		adicionarDinheiro = DataService.adicionarDinheiro,
@@ -91,7 +104,10 @@ HeistService.init({
 		reiniciar = LootService.reiniciar,
 	},
 	vigilancia = {
-		reiniciar = GuardService.reiniciar,
+		reiniciar = function()
+			GuardService.reiniciar()
+			CameraService.reiniciar()
+		end,
 	},
 })
 
@@ -102,6 +118,7 @@ DataService.start()
 AlarmService.start()
 LootService.start()
 GuardService.start()
+CameraService.start()
 HeistService.start()
 
 print("[Main] servidor pronto")
