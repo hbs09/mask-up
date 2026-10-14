@@ -30,6 +30,8 @@ local AlarmService = require(Services.AlarmService)
 local LootService = require(Services.LootService)
 local GuardService = require(Services.GuardService)
 local CameraService = require(Services.CameraService)
+local InteractService = require(Services.InteractService)
+local WireMinigame = require(Services.WireMinigame)
 local HeistService = require(Services.HeistService)
 
 --[[
@@ -93,6 +95,32 @@ CameraService.init({
 	},
 })
 
+--[[
+	O RequestInteract passa a ter um servico proprio, com um registo de
+	nome -> handler. Esteve escondido no AlarmService enquanto o unico objeto
+	interagivel era o botao de teste; dois servicos a ouvir o mesmo Remote e a
+	decidir cada um se a mensagem e para si duplicava validacoes.
+]]
+InteractService.init({
+	validacao = validacao,
+	heist = {
+		estadoAtual = HeistService.estadoAtual,
+	},
+})
+
+WireMinigame.init({
+	interagir = {
+		registar = InteractService.registar,
+	},
+	cameras = {
+		desligar = CameraService.desligar,
+		estaoLigadas = CameraService.estaoLigadas,
+	},
+	alarme = {
+		Trigger = AlarmService.Trigger,
+	},
+})
+
 HeistService.init({
 	dados = {
 		adicionarDinheiro = DataService.adicionarDinheiro,
@@ -107,6 +135,9 @@ HeistService.init({
 		reiniciar = function()
 			GuardService.reiniciar()
 			CameraService.reiniciar()
+			-- Sorteia um fio novo: herdar a resposta tornava o assalto seguinte
+			-- trivial para quem a tivesse decorado.
+			WireMinigame.reiniciar()
 		end,
 	},
 })
@@ -119,6 +150,9 @@ AlarmService.start()
 LootService.start()
 GuardService.start()
 CameraService.start()
+-- O InteractService antes do WireMinigame, que se registra nele.
+InteractService.start()
+WireMinigame.start()
 HeistService.start()
 
 print("[Main] servidor pronto")

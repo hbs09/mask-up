@@ -37,8 +37,26 @@ local Remotes = {
 	PickUpBag = evento("PickUpBag"),
 	DropBag = evento("DropBag"),
 
-	-- Fase 1 e Fase 5: declarados, ainda sem handler.
+	-- Minijogo do cabo.
 	WireChoice = evento("WireChoice"),
+	--[[
+		Servidor -> cliente. Nao esta na tabela da secçao 6 do documento, que e um
+		resumo dos principais; acrescentei-o porque o minijogo precisa de um
+		caminho de volta.
+
+		Leva TRES tipos de mensagem, porque sao todas o mesmo conceito -- o estado
+		do minijogo para este jogador:
+		  { tipo = "pista",  cor = "azul" }       depois de ler o esquema
+		  { tipo = "abrir",  cores = {...} }      depois de abrir o painel
+		  { tipo = "fechar", acertou = boolean }  resultado
+
+		A pista vai por aqui e nao escrita numa Part do mapa de proposito: um
+		texto numa propriedade replicada era legivel por qualquer cliente sem
+		ninguem ir la, o que esvaziava o esconderijo.
+	]]
+	EstadoDoCabo = evento("EstadoDoCabo"),
+
+	-- Fase 5: declarado, ainda sem handler.
 	UseEmergencyKit = evento("UseEmergencyKit"),
 }
 

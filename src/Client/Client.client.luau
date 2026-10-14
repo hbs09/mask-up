@@ -20,11 +20,14 @@ local Controllers = script.Parent:WaitForChild("Controllers")
 
 local HUDController = require(Controllers:WaitForChild("HUDController"))
 local InteractController = require(Controllers:WaitForChild("InteractController"))
+local MinigameUI = require(Controllers:WaitForChild("MinigameUI"))
 
 HUDController.init()
 InteractController.init()
+MinigameUI.init()
 
 HUDController.start()
 InteractController.start()
+MinigameUI.start()
 
 print("[Client] cliente pronto")
